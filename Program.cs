@@ -6,7 +6,8 @@ namespace CTLSAT
     {
         public static void Main(string[] args)
         {
-            Console.WriteLine("Hello!");
+            Formula formula = new Formula();
+            formula.CreateTestFormula();
         }
     }
 }
