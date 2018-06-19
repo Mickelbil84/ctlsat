@@ -5,6 +5,7 @@ namespace CTLSAT
     {
         public Formula()
         {
+            
         }
     }
 }
