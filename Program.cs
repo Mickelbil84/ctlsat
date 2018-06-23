@@ -6,8 +6,10 @@ namespace CTLSAT
     {
         public static void Main(string[] args)
         {
-            Formula formula = new Formula();
-            formula.CreateTestFormula();
+            Console.WriteLine(FormulaParser.parse("AG(EF(p))").ToString());
+            Console.WriteLine(FormulaParser.parse("EF(p & ~q)").ToString());
+            Console.WriteLine(FormulaParser.parse("AG(~EF(p))").ToString());
+            Console.ReadLine();
         }
     }
 }

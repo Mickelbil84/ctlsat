@@ -56,19 +56,21 @@ namespace CTLSAT
             this.childNodes[1] = right;
         }
 
-        public static string ToString(FormulaNode node)
+        public string ToString()
         {
-            if (node == null)
-                return "";
-            string result = "(";
-            result += ToString(node.childNodes[0]);
-            if (node.logicOp != LogicOperator.VAR)
-                result += node.logicOp.ToString();
-            else
-                result += node.name;
-            result += ToString(node.childNodes[1]);
-            return result + ")";
+            if (this.logicOp == LogicOperator.VAR)
+                return this.name;
+
+            if (this.childNodes[1] == null)
+                return this.logicOp.ToString() + "(" + this.childNodes[0].ToString() + ")";
+
+            string result = "";
+            result += this.childNodes[0].ToString();
+            result += " " + this.logicOp.ToString() + " ";
+            result += this.childNodes[1].ToString();
+            return result;
         }
+
     }
 
     public class Formula
@@ -83,7 +85,7 @@ namespace CTLSAT
         {
             root = new FormulaNode(LogicOperator.EX);
             root.SetChildren(null, new FormulaNode("b"));
-            string res = FormulaNode.ToString(root);
+            string res = root.ToString();
             Console.WriteLine(res);
 
             root = new FormulaNode(LogicOperator.EU);
@@ -91,7 +93,7 @@ namespace CTLSAT
             a.SetChildren(null, new FormulaNode("p"));
 
             root.SetChildren(a, new FormulaNode("q"));
-            res = FormulaNode.ToString(root);
+            res = root.ToString();
             Console.WriteLine(res);
         }
     }
