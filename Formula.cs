@@ -71,30 +71,18 @@ namespace CTLSAT
             return result;
         }
 
-    }
-
-    public class Formula
-    {
-        private FormulaNode root = null;
-
-        public Formula()
+        public static FormulaNode CreateTestFormula()
         {
-        }
+            FormulaNode result = new FormulaNode(LogicOperator.EX);
+            result.SetChildren(null, new FormulaNode("b"));
 
-        public void CreateTestFormula()
-        {
-            root = new FormulaNode(LogicOperator.EX);
-            root.SetChildren(null, new FormulaNode("b"));
-            string res = root.ToString();
-            Console.WriteLine(res);
-
-            root = new FormulaNode(LogicOperator.EU);
+            result = new FormulaNode(LogicOperator.EU);
             FormulaNode a = new FormulaNode(LogicOperator.AG);
-            a.SetChildren(null, new FormulaNode("p"));
+            a.SetChildren(new FormulaNode("p"), null);
 
-            root.SetChildren(a, new FormulaNode("q"));
-            res = root.ToString();
-            Console.WriteLine(res);
+            result.SetChildren(a, new FormulaNode("q"));
+            return result;
         }
     }
+
 }
