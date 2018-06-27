@@ -14,7 +14,8 @@ namespace CTLSAT
         AND, OR, NOT, IMP,
         EF, AF, EG, AG,
         EX, AX, EU, AU, ER, AR,
-        VAR
+        VAR,
+        COMMA  // This is only used internally by the parsing logic
     }
 
     /*
@@ -38,6 +39,13 @@ namespace CTLSAT
             this.logicOp = logicOp;
         }
 
+        public FormulaNode this[int key]
+        {
+            get
+            {
+                return childNodes[key];
+            }
+        }
 
         public void SetLogicOperator(LogicOperator logicOp)
         {

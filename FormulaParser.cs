@@ -8,7 +8,7 @@ namespace CTLSAT
     {
         private enum TokenType
         {
-            UNPARSED, ATOM, BINARY_OP
+            UNPARSED, ATOM
         }
 
         private class Token { }
@@ -51,15 +51,30 @@ namespace CTLSAT
         }
 
         private static Dictionary<string, BinaryToken> binaryOps = new Dictionary<string, BinaryToken>
-            { ["&"] = new BinaryToken("&", 3, LogicOperator.AND),
-              ["|"] = new BinaryToken("|", 2, LogicOperator.OR)
-            };
+        {
+            ["&"] = new BinaryToken("&", 3, LogicOperator.AND),
+            ["|"] = new BinaryToken("|", 2, LogicOperator.OR),
+            [","] = new BinaryToken(",", 1, LogicOperator.COMMA)
+        };
 
         private static Dictionary<string, UnaryToken> unaryOps = new Dictionary<string, UnaryToken>
         {
             ["~"] = new UnaryToken(LogicOperator.NOT),
             ["AG"] = new UnaryToken(LogicOperator.AG),
-            ["EF"] = new UnaryToken(LogicOperator.EF)
+            ["AU"] = new UnaryToken(LogicOperator.AU),
+            ["AX"] = new UnaryToken(LogicOperator.AX),
+            ["AF"] = new UnaryToken(LogicOperator.AF),
+            ["AR"] = new UnaryToken(LogicOperator.AR),
+            ["EG"] = new UnaryToken(LogicOperator.EG),
+            ["EU"] = new UnaryToken(LogicOperator.EU),
+            ["EX"] = new UnaryToken(LogicOperator.EX),
+            ["EF"] = new UnaryToken(LogicOperator.EF),
+            ["ER"] = new UnaryToken(LogicOperator.ER)
+        };
+
+        private static List<LogicOperator> untilOperators = new List<LogicOperator>
+        {
+            LogicOperator.AU, LogicOperator.EU
         };
 
         private static List<Token> toplevelTokenize(string str)
@@ -139,12 +154,16 @@ namespace CTLSAT
                 return parse(toplevelTokenize(tok.value));
             }
 
-            // two tokens - must be an unary operator and its operand
+            // unary operator - the rest is the operand
             if (tokens[0] is UnaryToken)
             {
                 var opToken = tokens[0] as UnaryToken;
                 result = new FormulaNode(opToken.logicOperator);
-                result.SetChildren(parse(tokens.GetRange(1, tokens.Count-1)), null);
+                var operand = parse(tokens.GetRange(1, tokens.Count - 1));
+                if (untilOperators.Contains(opToken.logicOperator))
+                    result.SetChildren(operand[0], operand[1]);
+                else
+                    result.SetChildren(operand, null);
                 return result;
             }
 
