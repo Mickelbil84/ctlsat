@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 
 namespace CTLSAT
 {
@@ -88,6 +89,26 @@ namespace CTLSAT
             Console.WriteLine(e1);
             Console.WriteLine(e1.PNF());
             Console.WriteLine(e1.PNF().GetPropositional());
+
+            Console.WriteLine();
+
+            // Test the formula from wikipedia:
+            // ((p|q)&r) -> (~s)
+            FormulaNode f1 = new FormulaNode(LogicOperator.IMP);
+            FormulaNode f2 = new FormulaNode(LogicOperator.AND);
+            FormulaNode f3 = new FormulaNode(LogicOperator.OR);
+            f3.SetChildren(new FormulaNode("p"), new FormulaNode("q"));
+            f2.SetChildren(f3, new FormulaNode("r"));
+            FormulaNode f4 = new FormulaNode(LogicOperator.NOT);
+            f4.SetChildren(new FormulaNode("s"), null);
+            f1.SetChildren(f2, f4);
+            Console.WriteLine(f1);
+            FormulaCNF.QBCNFormula cnf = FormulaCNF.ConvertToCNF(f1);
+            //Dictionary<string, string> changes = new Dictionary<string, string>();
+            //changes.Add("p", "17");
+            //changes.Add("-p", "-17");
+            //cnf.ReplaceLiterals(changes);
+            Console.WriteLine(cnf);
 
         }
     }

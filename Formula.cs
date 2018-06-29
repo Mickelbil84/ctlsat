@@ -60,6 +60,25 @@ namespace CTLSAT
             this.logicOp = logicOp;
         }
 
+        public LogicOperator GetLogicOperator()
+        {
+            return this.logicOp;
+        }
+
+        public FormulaNode GetLeftChild()
+        {
+            return this.childNodes[0];
+        }
+        public FormulaNode GetRightChild()
+        {
+            return this.childNodes[1];
+        }
+
+        public string GetName()
+        {
+            return this.name;
+        }
+
         public void SetVariable(string name)
         {
             this.name = name;
