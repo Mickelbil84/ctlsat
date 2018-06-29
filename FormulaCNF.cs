@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO;
 using System.Collections.Generic;
 
 namespace CTLSAT
@@ -144,7 +145,6 @@ namespace CTLSAT
                     res.Add(temp);
                     break;
 
-
                 default:
                     break;
             }
@@ -215,6 +215,7 @@ namespace CTLSAT
             public void ReplaceLiterals(Dictionary<string, string> changes)
             {
                 ISet<ISet<string>> newPropositional = new HashSet<ISet<string>>();
+                List<string> newQuantifiers = new List<string>();
 
                 foreach (ISet<string> clause in propositional)
                 {
@@ -229,7 +230,17 @@ namespace CTLSAT
                     newPropositional.Add(newClause);
                 }
 
+                foreach (string q in this.quantifiers)
+                {
+                    string l = q.Substring(1);
+                    // If the variable doesn't appear in the propositional
+                    // formula, then there is no need to add it at all
+                    if (changes.ContainsKey(l))
+                        newQuantifiers.Add(q[0] + changes[l]);
+                }
+
                 this.propositional = newPropositional;
+                this.quantifiers = newQuantifiers;
             }
         }
 
@@ -244,9 +255,9 @@ namespace CTLSAT
                    node.GetLogicOperator() == LogicOperator.ALL)
             {
                 if (node.GetLogicOperator() == LogicOperator.EXISTS)
-                    res.quantifiers.Add("E" + node.GetName());
+                    res.quantifiers.Add("e" + node.GetName());
                 else 
-                    res.quantifiers.Add("A" + node.GetName());
+                    res.quantifiers.Add("a" + node.GetName());
                 node = node.GetLeftChild();
             }
 
@@ -276,20 +287,46 @@ namespace CTLSAT
                 }
             }
 
-            List<string> newQuantifiers = new List<string>();
-            foreach (string q in res.quantifiers)
-            {
-                string l = q.Substring(1);
-                // If the variable doesn't appear in the propositional
-                // formula, then there is no need to add it at all
-                if (changes.ContainsKey(l))
-                    newQuantifiers.Add(q[0] + changes[l]);
-            }
-
             res.ReplaceLiterals(changes);
-            res.quantifiers = newQuantifiers;
 
             return res;
+        }
+
+        public static void CreateQDIMACS(QBCNFormula qbcnf, string filename)
+        {
+            using (StreamWriter sw = File.CreateText(filename))
+            {
+                // Write preamble
+                sw.WriteLine("p cnf " + qbcnf.quantifiers.Count +
+                             " " + qbcnf.propositional.Count);
+
+                // Write prefix
+                char lastQuant = qbcnf.quantifiers[0][0];
+                sw.Write(lastQuant + " " + qbcnf.quantifiers[0].Substring(1));
+                for (int i = 1; i < qbcnf.quantifiers.Count; i++)
+                {
+                    if (qbcnf.quantifiers[i][0] != lastQuant)
+                    {
+                        sw.Write(" 0");
+                        sw.WriteLine();
+                        sw.Write(qbcnf.quantifiers[i][0] + " ");
+                        lastQuant = qbcnf.quantifiers[i][0];
+                    }
+
+                    sw.Write(" " + qbcnf.quantifiers[i].Substring(1));
+                }
+                sw.Write(" 0");
+                sw.WriteLine();
+
+                // Write clauses
+                foreach (ISet<string> clause in qbcnf.propositional) 
+                {
+                    foreach (string literal in clause)
+                        sw.Write(literal + " ");
+                    sw.Write("0");
+                    sw.WriteLine();
+                }
+            }
         }
     }
 }

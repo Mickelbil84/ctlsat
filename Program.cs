@@ -117,6 +117,7 @@ namespace CTLSAT
             Console.WriteLine(g1);
             cnf = FormulaCNF.ConvertToCNF(g1);
             Console.WriteLine(cnf);
+            FormulaCNF.CreateQDIMACS(cnf, "test.qdimacs");
 
         }
     }
