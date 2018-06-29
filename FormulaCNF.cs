@@ -171,12 +171,15 @@ namespace CTLSAT
         public class QBCNFormula
         {
             public ISet<ISet<string>> propositional;
-            //TODO: Also add quantifiers
+            public List<string> quantifiers;
 
             public override string ToString()
             {
                 string res = "";
                 int andcnt = 0;
+
+                foreach (string q in quantifiers)
+                    res += q + "\n";
 
                 foreach (ISet<string> clause in this.propositional)
                 {
@@ -234,7 +237,20 @@ namespace CTLSAT
         public static QBCNFormula ConvertToCNF(FormulaNode formula)
         {
             QBCNFormula res = new QBCNFormula();
-            res.propositional = TseytinTransformation(formula.GetPropositional());
+            FormulaNode node = formula;
+
+            res.quantifiers = new List<string>();
+            while (node.GetLogicOperator() == LogicOperator.EXISTS ||
+                   node.GetLogicOperator() == LogicOperator.ALL)
+            {
+                if (node.GetLogicOperator() == LogicOperator.EXISTS)
+                    res.quantifiers.Add("E" + node.GetName());
+                else 
+                    res.quantifiers.Add("A" + node.GetName());
+                node = node.GetLeftChild();
+            }
+
+            res.propositional = TseytinTransformation(node);
 
             //Replace strings with numbers
             ISet<string> literals = res.GetLiterals();
@@ -260,7 +276,18 @@ namespace CTLSAT
                 }
             }
 
+            List<string> newQuantifiers = new List<string>();
+            foreach (string q in res.quantifiers)
+            {
+                string l = q.Substring(1);
+                // If the variable doesn't appear in the propositional
+                // formula, then there is no need to add it at all
+                if (changes.ContainsKey(l))
+                    newQuantifiers.Add(q[0] + changes[l]);
+            }
+
             res.ReplaceLiterals(changes);
+            res.quantifiers = newQuantifiers;
 
             return res;
         }

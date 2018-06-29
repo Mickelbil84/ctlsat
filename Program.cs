@@ -104,10 +104,18 @@ namespace CTLSAT
             f1.SetChildren(f2, f4);
             Console.WriteLine(f1);
             FormulaCNF.QBCNFormula cnf = FormulaCNF.ConvertToCNF(f1);
-            //Dictionary<string, string> changes = new Dictionary<string, string>();
-            //changes.Add("p", "17");
-            //changes.Add("-p", "-17");
-            //cnf.ReplaceLiterals(changes);
+            Console.WriteLine(cnf);
+
+            Console.WriteLine();
+
+            FormulaNode g1 = new FormulaNode(LogicOperator.ALL, "p");
+            FormulaNode g2 = new FormulaNode(LogicOperator.EXISTS, "q");
+            FormulaNode g3 = new FormulaNode(LogicOperator.EXISTS, "oops");
+            g1.SetChildren(g2, null);
+            g2.SetChildren(g3, null);
+            g3.SetChildren(f1, null);
+            Console.WriteLine(g1);
+            cnf = FormulaCNF.ConvertToCNF(g1);
             Console.WriteLine(cnf);
 
         }
