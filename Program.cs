@@ -6,14 +6,12 @@ namespace CTLSAT
     {
         public static void Main(string[] args)
         {
-<<<<<<< Updated upstream
             //Console.WriteLine(FormulaNode.CreateTestFormula().ToString());
             Console.WriteLine(FormulaParser.parse("AG(EF(p))").ToString());
             Console.WriteLine(FormulaParser.parse("~AU(p,q)").ToString());
             Console.WriteLine(FormulaParser.parse("EF(p & ~q)").ToString());
             Console.WriteLine(FormulaParser.parse("AG(~EF(p))").ToString());
-            Console.ReadLine();
-=======
+
             FormulaNode a = FormulaParser.parse("~AG(EF(p))");
             FormulaNode b = FormulaParser.parse("~EF(p & ~q)");
             FormulaNode c = FormulaParser.parse("~AG(~EF(p))");
@@ -91,8 +89,6 @@ namespace CTLSAT
             Console.WriteLine(e1.PNF());
             Console.WriteLine(e1.PNF().GetPropositional());
 
-            //Console.ReadLine();
->>>>>>> Stashed changes
         }
     }
 }

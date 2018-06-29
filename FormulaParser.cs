@@ -61,7 +61,6 @@ namespace CTLSAT
         {
             ["~"] = new UnaryToken(LogicOperator.NOT),
             ["AG"] = new UnaryToken(LogicOperator.AG),
-<<<<<<< Updated upstream
             ["AU"] = new UnaryToken(LogicOperator.AU),
             ["AX"] = new UnaryToken(LogicOperator.AX),
             ["AF"] = new UnaryToken(LogicOperator.AF),
@@ -76,9 +75,6 @@ namespace CTLSAT
         private static List<LogicOperator> untilOperators = new List<LogicOperator>
         {
             LogicOperator.AU, LogicOperator.EU
-=======
-            ["EF"] = new UnaryToken(LogicOperator.EF),
->>>>>>> Stashed changes
         };
 
         private static List<Token> toplevelTokenize(string str)
@@ -173,7 +169,7 @@ namespace CTLSAT
 
             // more than two tokens - split into parts by binary operators
             int minPrecedence = 1000;
-            for (int i = 0;i < tokens.Count;i++)
+            for (int i = 0; i < tokens.Count; i++)
             {
                 if (tokens[i] is BinaryToken)
                 {
@@ -202,7 +198,7 @@ namespace CTLSAT
                         rightSide = new List<Token>();
                         lastOp = op;
                         continue;
-                    } 
+                    }
                 }
                 rightSide.Add(t);
             }
