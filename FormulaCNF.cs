@@ -1,6 +1,8 @@
 ﻿using System;
 using System.IO;
 using System.Collections.Generic;
+using System.Diagnostics;
+using System.ComponentModel;
 
 namespace CTLSAT
 {
@@ -160,10 +162,15 @@ namespace CTLSAT
             ISet<ISet<string>> res = new HashSet<ISet<string>>();
             ISet<TseytinBlock> blockSet = new HashSet<TseytinBlock>();
             ticketMachine.Reset();
-            GetTseytinBlocks(formula, blockSet);
+            TseytinBlock top = GetTseytinBlocks(formula, blockSet);
 
             foreach (TseytinBlock block in blockSet)
                 res.UnionWith(TseytinBlockToCNF(block));
+
+            // Add the requirement that the topmost formula is true
+            ISet<string> topClause = new HashSet<string>();
+            topClause.Add(top.ticket.ToString());
+            res.Add(topClause);
 
             return res;
         }
@@ -301,22 +308,25 @@ namespace CTLSAT
                              " " + qbcnf.propositional.Count);
 
                 // Write prefix
-                char lastQuant = qbcnf.quantifiers[0][0];
-                sw.Write(lastQuant + " " + qbcnf.quantifiers[0].Substring(1));
-                for (int i = 1; i < qbcnf.quantifiers.Count; i++)
+                if (qbcnf.quantifiers.Count > 0)
                 {
-                    if (qbcnf.quantifiers[i][0] != lastQuant)
+                    char lastQuant = qbcnf.quantifiers[0][0];
+                    sw.Write(lastQuant + " " + qbcnf.quantifiers[0].Substring(1));
+                    for (int i = 1; i < qbcnf.quantifiers.Count; i++)
                     {
-                        sw.Write(" 0");
-                        sw.WriteLine();
-                        sw.Write(qbcnf.quantifiers[i][0] + " ");
-                        lastQuant = qbcnf.quantifiers[i][0];
-                    }
+                        if (qbcnf.quantifiers[i][0] != lastQuant)
+                        {
+                            sw.Write(" 0");
+                            sw.WriteLine();
+                            sw.Write(qbcnf.quantifiers[i][0] + " ");
+                            lastQuant = qbcnf.quantifiers[i][0];
+                        }
 
-                    sw.Write(" " + qbcnf.quantifiers[i].Substring(1));
+                        sw.Write(" " + qbcnf.quantifiers[i].Substring(1));
+                    }
+                    sw.Write(" 0");
+                    sw.WriteLine();
                 }
-                sw.Write(" 0");
-                sw.WriteLine();
 
                 // Write clauses
                 foreach (ISet<string> clause in qbcnf.propositional) 
@@ -327,6 +337,35 @@ namespace CTLSAT
                     sw.WriteLine();
                 }
             }
+        }
+
+        // We assume that the formula is in QBF
+        // (But no other assumption)
+        public static bool QBFSAT(FormulaNode formula)
+        {
+            // First convert the formula to PNF
+            formula = formula.NNF().PNF();
+            Console.WriteLine(formula);
+            // Then convert it to QBCNF
+            QBCNFormula qbcnf = ConvertToCNF(formula);
+
+            // Now create a QDIMACS file and send it to 
+            // a QBF solver
+            // TODO: make more modular
+            CreateQDIMACS(qbcnf, "temp.qdimacs");
+            Process process = new Process();
+            process.StartInfo.FileName = "rareqs";
+            process.StartInfo.Arguments = "temp.qdimacs";
+            process.StartInfo.RedirectStandardOutput = true;
+            process.StartInfo.RedirectStandardError = true;
+            process.StartInfo.UseShellExecute = false;
+            process.Start();
+            string output = process.StandardOutput.ReadToEnd();
+            process.WaitForExit();
+
+            //Console.WriteLine(output);
+
+            return output[output.Length - 2] == '1';
         }
     }
 }

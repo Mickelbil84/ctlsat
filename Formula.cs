@@ -241,7 +241,7 @@ namespace CTLSAT
                     left = this.childNodes[0].childNodes[0].NNF();
                     right = new FormulaNode(LogicOperator.NOT);
                     right.SetChildren(this.childNodes[0].childNodes[1].NNF(), null);
-                    res.SetChildren(left, right);
+                    res.SetChildren(left, right.NNF());
                     return res;
 
                 case LogicOperator.EF:

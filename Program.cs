@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 
+
 namespace CTLSAT
 {
     class MainClass
@@ -117,8 +118,23 @@ namespace CTLSAT
             Console.WriteLine(g1);
             cnf = FormulaCNF.ConvertToCNF(g1);
             Console.WriteLine(cnf);
-            FormulaCNF.CreateQDIMACS(cnf, "test.qdimacs");
 
+            // h1 = f1 ^ ~f1
+            FormulaNode h1 = new FormulaNode(LogicOperator.AND);
+            h1.SetChildren(f1, new FormulaNode(LogicOperator.NOT));
+            h1.GetRightChild().SetChildren(f1, null);
+
+            Console.WriteLine(d1 + " is " + convSAT(FormulaCNF.QBFSAT(d1)));
+            Console.WriteLine(e1 + " is " + convSAT(FormulaCNF.QBFSAT(e1)));
+            Console.WriteLine(f1 + " is " + convSAT(FormulaCNF.QBFSAT(f1)));
+            Console.WriteLine(g1 + " is " + convSAT(FormulaCNF.QBFSAT(g1)));
+            Console.WriteLine(h1 + " is " + convSAT(FormulaCNF.QBFSAT(h1)));
+        }
+
+        public static string convSAT(bool b)
+        {
+            if (b) return "SAT";
+            return "UNSAT";
         }
     }
 }
