@@ -37,6 +37,7 @@
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Formula.cs" />
+    <Compile Include="FormulaCNF.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />

@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -61,6 +61,7 @@ namespace CTLSAT
         {
             ["~"] = new UnaryToken(LogicOperator.NOT),
             ["AG"] = new UnaryToken(LogicOperator.AG),
+<<<<<<< Updated upstream
             ["AU"] = new UnaryToken(LogicOperator.AU),
             ["AX"] = new UnaryToken(LogicOperator.AX),
             ["AF"] = new UnaryToken(LogicOperator.AF),
@@ -75,6 +76,9 @@ namespace CTLSAT
         private static List<LogicOperator> untilOperators = new List<LogicOperator>
         {
             LogicOperator.AU, LogicOperator.EU
+=======
+            ["EF"] = new UnaryToken(LogicOperator.EF),
+>>>>>>> Stashed changes
         };
 
         private static List<Token> toplevelTokenize(string str)
