@@ -33,6 +33,8 @@
     <Reference Include="System" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="CTLSatisfiabilityChecker.cs" />
+    <Compile Include="CTLUtils.cs" />
     <Compile Include="FormulaParser.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

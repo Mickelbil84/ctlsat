@@ -363,9 +363,9 @@ namespace CTLSAT
             string output = process.StandardOutput.ReadToEnd();
             process.WaitForExit();
 
-            //Console.WriteLine(output);
-
-            return output[output.Length - 2] == '1';
+            output = output.Trim();
+            return output[output.Length - 1] == '1';
         }
     }
 }
+

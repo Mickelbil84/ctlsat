@@ -50,6 +50,7 @@ namespace CTLSAT
             }
         }
 
+        private const int MAX_PRECEDENCE = 1000;
         private static Dictionary<string, BinaryToken> binaryOps = new Dictionary<string, BinaryToken>
         {
             ["&"] = new BinaryToken("&", 3, LogicOperator.AND),
@@ -60,6 +61,8 @@ namespace CTLSAT
         private static Dictionary<string, UnaryToken> unaryOps = new Dictionary<string, UnaryToken>
         {
             ["~"] = new UnaryToken(LogicOperator.NOT),
+            ["E"] = new UnaryToken(LogicOperator.EXISTS),
+            ["A"] = new UnaryToken(LogicOperator.ALL),
             ["AG"] = new UnaryToken(LogicOperator.AG),
             ["AU"] = new UnaryToken(LogicOperator.AU),
             ["AX"] = new UnaryToken(LogicOperator.AX),
@@ -75,6 +78,11 @@ namespace CTLSAT
         private static List<LogicOperator> untilOperators = new List<LogicOperator>
         {
             LogicOperator.AU, LogicOperator.EU
+        };
+
+        private static List<LogicOperator> quanitifers = new List<LogicOperator>
+        {
+            LogicOperator.EXISTS, LogicOperator.ALL
         };
 
         private static List<Token> toplevelTokenize(string str)
@@ -154,21 +162,7 @@ namespace CTLSAT
                 return parse(toplevelTokenize(tok.value));
             }
 
-            // unary operator - the rest is the operand
-            if (tokens[0] is UnaryToken)
-            {
-                var opToken = tokens[0] as UnaryToken;
-                result = new FormulaNode(opToken.logicOperator);
-                var operand = parse(tokens.GetRange(1, tokens.Count - 1));
-                if (untilOperators.Contains(opToken.logicOperator))
-                    result.SetChildren(operand[0], operand[1]);
-                else
-                    result.SetChildren(operand, null);
-                return result;
-            }
-
-            // more than two tokens - split into parts by binary operators
-            int minPrecedence = 1000;
+            int minPrecedence = MAX_PRECEDENCE;
             for (int i = 0; i < tokens.Count; i++)
             {
                 if (tokens[i] is BinaryToken)
@@ -178,6 +172,25 @@ namespace CTLSAT
                 }
             }
 
+            if (minPrecedence == MAX_PRECEDENCE)
+            {
+                // no toplevel binary operators
+                var opToken = tokens[0] as UnaryToken;
+                result = new FormulaNode(opToken.logicOperator);
+                var operand = parse(tokens.GetRange(1, tokens.Count - 1));
+                if (untilOperators.Contains(opToken.logicOperator))
+                    result.SetChildren(operand[0], operand[1]);
+                else if (quanitifers.Contains(opToken.logicOperator))
+                {
+                    result.SetName(operand[0].GetName());
+                    result.SetChildren(operand[1], null);
+                }
+                else
+                    result.SetChildren(operand, null);
+                return result;
+            }
+
+            // if we got here - split by lowest-precedence binary operator
             foreach (Token t in tokens)
             {
                 if (t is BinaryToken)
@@ -208,6 +221,7 @@ namespace CTLSAT
                 result = new FormulaNode(lastOp.logicOperator);
                 result.SetChildren(leftSide, parse(rightSide));
             }
+
             return result;
         }
 

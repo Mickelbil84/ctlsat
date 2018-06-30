@@ -79,6 +79,11 @@ namespace CTLSAT
             return this.name;
         }
 
+        public void SetName(string name)
+        {
+            this.name = name;
+        }
+
         public void SetVariable(string name)
         {
             this.name = name;
@@ -89,6 +94,29 @@ namespace CTLSAT
         {
             this.childNodes[0] = left;
             this.childNodes[1] = right;
+        }
+
+        public override bool Equals(Object other)
+        {
+            var otherFormula = other as FormulaNode;
+            if (otherFormula.logicOp != logicOp)
+                return false;
+
+            if (logicOp == LogicOperator.VAR)
+                return name == otherFormula.name;
+
+            if (!childNodes[0].Equals(otherFormula.childNodes[0]))
+                return false;
+
+            if (childNodes[1] == null && otherFormula[1] == null)
+                return true;
+
+            return childNodes[1].Equals(otherFormula[1]);
+        }
+
+        public override int GetHashCode()
+        {
+            return ((int)logicOp);
         }
 
         public override string ToString() 
