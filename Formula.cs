@@ -27,7 +27,6 @@ namespace CTLSAT
         private FormulaNode[] childNodes = new FormulaNode[2];
         private LogicOperator logicOp;
         private string name;
-
         public FormulaNode() {}
         public FormulaNode(string name)
         {
@@ -45,6 +44,13 @@ namespace CTLSAT
             //e.g. Ay(...) -> forall y. (...)
             this.logicOp = logicOp;
             this.name = name;
+        }
+
+        public FormulaNode(LogicOperator logicOp, FormulaNode left, FormulaNode right)
+        {
+            this.logicOp = logicOp;
+            childNodes[0] = left;
+            childNodes[1] = right;
         }
 
         public FormulaNode this[int key]

@@ -63,7 +63,20 @@ namespace CTLSAT
             return result;
         }
 
-        private static FormulaNode nnfNegate(FormulaNode formula)
+        public static ISet<FormulaNode> positiveElementary(FormulaNode formula)
+        {
+            ISet<FormulaNode> allElementary = elementaryFormulas(formula);
+            HashSet<FormulaNode> result = new HashSet<FormulaNode>();
+            foreach (var f in allElementary)
+            {
+                if (f.GetLogicOperator() == LogicOperator.VAR ||
+                    f.GetLogicOperator() == LogicOperator.EX)
+                    result.Add(f);
+            }
+            return result;
+        }
+
+        public static FormulaNode nnfNegate(FormulaNode formula)
         {
             FormulaNode result = new FormulaNode(LogicOperator.NOT);
             result.SetChildren(formula, null);

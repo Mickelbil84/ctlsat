@@ -1,0 +1,100 @@
+﻿using System;
+using System.Collections.Generic;
+
+namespace CTLSAT
+{
+    /* Represents a set of boolean variables, one for each positive elementary
+     * formula, whose values together represent a state in the Hintikka structure
+     */
+    class SymbolicState
+    {
+        readonly IDictionary<FormulaNode, string> elementaryNames = new Dictionary<FormulaNode, string>();
+        readonly IDictionary<string, FormulaNode> nameToElementary = new Dictionary<string, FormulaNode>();
+
+        public SymbolicState(ISet<FormulaNode> positiveElementary, string prefix)
+        {
+            int i = 0;
+            foreach (var e in positiveElementary)
+            {
+                elementaryNames[e] = prefix + i.ToString();
+                nameToElementary[prefix + i.ToString()] = e;
+                i++;
+            }
+        }
+
+        /* Build a propositional formula representing the value of the given CTL
+         * formula in this state
+         */
+        public FormulaNode valueOf(FormulaNode formula)
+        {
+            switch (formula.GetLogicOperator())
+            {
+                case LogicOperator.VAR:
+                case LogicOperator.EX:
+                    // literals and EX(...) formulas are considered positive elementary,
+                    // and so should correspond directly to a propositional variable
+                    return new FormulaNode(elementaryNames[formula]);
+                default:
+                    throw new NotImplementedException();
+            }
+        }
+
+        /* Replace the variables describing the state <from> with the ones that describe
+         * state <to>
+         */
+        public static FormulaNode substitute(FormulaNode formula, SymbolicState from, SymbolicState to)
+        {
+            if (formula.GetLogicOperator() == LogicOperator.VAR)
+            {
+                if (from.nameToElementary.Keys.Contains(formula.GetName()))
+                {
+                    // this variable represents an elementary formula
+                    var elementary = from.nameToElementary[formula.GetName()];
+                    return new FormulaNode(to.elementaryNames[elementary]);
+                }
+                else
+                {
+                    return new FormulaNode(formula.GetName());
+                }
+            }
+
+            if (formula.GetLogicOperator() == LogicOperator.ALL ||
+                formula.GetLogicOperator() == LogicOperator.EXISTS)
+            {
+                FormulaNode result = new FormulaNode(formula.GetLogicOperator());
+                if (from.nameToElementary.Keys.Contains(formula.GetName()))
+                {
+                    // this variable represents an elementary formula
+                    var elementary = from.nameToElementary[formula.GetName()];
+                    result.SetName(to.elementaryNames[elementary]);
+                }
+                else
+                {
+                    result.SetName(formula.GetName());
+                }
+                result.SetChildren(substitute(formula[0], from, to), null);
+                return result;
+            }
+
+            FormulaNode res = new FormulaNode(formula.GetLogicOperator());
+
+            FormulaNode left = substitute(formula[0], from, to);
+            FormulaNode right = null;
+            if (formula[1] != null)
+                right = substitute(formula[1], from, to);
+            res.SetChildren(left, right);
+            return res;
+        }
+
+        public FormulaNode quantify(LogicOperator quantifier, FormulaNode formula)
+        {
+            FormulaNode result = formula;
+            foreach (string name in elementaryNames.Values)
+            {
+                result = new FormulaNode(quantifier, result, null);
+                result.SetName(name);
+            }
+            return result;
+        }
+    }
+}
