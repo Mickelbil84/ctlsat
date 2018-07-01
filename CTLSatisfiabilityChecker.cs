@@ -15,9 +15,12 @@ namespace CTLSAT
         {
             normalized = formula.NNF();
             elementary = CTLUtils.positiveElementary(normalized);
+            Console.WriteLine("Positive Elementary:");
+            foreach (var v in elementary)
+                Console.WriteLine(" " + v.ToString());
         }
 
-        public void check(FormulaNode formula)
+        public void check()
         {
             SymbolicState v = new SymbolicState(elementary, "v");
 
@@ -25,12 +28,28 @@ namespace CTLSAT
             FormulaNode states = new FormulaNode("TRUE");
             FormulaNode oldStates;
 
+            int i = 0;
             while (true)
             {
+                i++;
+                Console.WriteLine("Iteration " + i.ToString());
                 oldStates = states;
                 FormulaNode succ = genSucc(states, v);
                 states = new FormulaNode(LogicOperator.AND, states, succ);
+                if (isFixpoint(states, oldStates, v))
+                    break;
             }
+        }
+
+        /* Check if we reached a fixpoint. That is, if no states were removed from
+         * <oldStates>.
+         */
+        private bool isFixpoint(FormulaNode oldStates, FormulaNode newStates, SymbolicState v)
+        {
+            FormulaNode notNew = new FormulaNode(LogicOperator.NOT, newStates, null);
+            FormulaNode stateRemoved = new FormulaNode(LogicOperator.AND, oldStates, notNew);
+            stateRemoved = v.quantify(LogicOperator.EXISTS, stateRemoved);
+            return !FormulaCNF.QBFSAT(stateRemoved);
         }
 
         /* Generates a formula representing the fact that <state> has a
@@ -71,7 +90,15 @@ namespace CTLSAT
         private FormulaNode joinTerms(LogicOperator op, List<FormulaNode> terms)
         {
             if (terms.Count == 0)
-                throw new NotImplementedException();
+            {
+                if (op == LogicOperator.AND)
+                    return new FormulaNode("TRUE");
+                if (op == LogicOperator.OR)
+                    return new FormulaNode("FALSE");
+
+                throw new Exception("Join with unsupported logic operator");
+            }
+                
 
             if (terms.Count == 1)
                 return terms[0];

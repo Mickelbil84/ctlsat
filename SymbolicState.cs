@@ -34,6 +34,8 @@ namespace CTLSAT
                     // literals and EX(...) formulas are considered positive elementary,
                     // and so should correspond directly to a propositional variable
                     return new FormulaNode(elementaryNames[formula]);
+                case LogicOperator.NOT:
+                    return new FormulaNode(LogicOperator.NOT, valueOf(formula[0]), null);
                 default:
                     throw new NotImplementedException();
             }

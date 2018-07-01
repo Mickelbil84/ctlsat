@@ -326,7 +326,6 @@ namespace CTLSAT
         {
             // First convert the formula to PNF
             formula = formula.NNF().PNF();
-            Console.WriteLine(formula);
             // Then convert it to QBCNF
             QBCNFormula qbcnf = ConvertToCNF(formula);
 
@@ -345,7 +344,8 @@ namespace CTLSAT
             process.WaitForExit();
 
             output = output.Trim();
-            return output[output.Length - 1] == '1';
+            bool result = output[output.Length - 1] == '1';
+            return result;
         }
     }
 }

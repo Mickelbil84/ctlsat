@@ -8,9 +8,8 @@ namespace CTLSAT
     {
         public static void Main(string[] args)
         {
-            var el = CTLUtils.elementaryFormulas(FormulaParser.parse("AU(x|~x, p)&EX(q)"));
-            foreach (var f in el)
-                Console.WriteLine(f);
+            CTLSatisfiabilityChecker checker = new CTLSatisfiabilityChecker(FormulaParser.parse("~p&EX(p)"));
+            checker.check();
         }
 
         public static string convSAT(bool b)

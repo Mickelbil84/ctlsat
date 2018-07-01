@@ -140,9 +140,15 @@ namespace CTLSAT
                 return opstring + "(" + this.childNodes[0] + ")";
 
             string result = "";
-            result += this.childNodes[0].ToString();
+            if (this.childNodes[0].logicOp != this.logicOp && this.childNodes[0].logicOp != LogicOperator.VAR)
+                result += "(" + this.childNodes[0].ToString() + ")";
+            else
+                result += this.childNodes[0].ToString();
             result += " " + opstring + " ";
-            result += this.childNodes[1].ToString();
+            if (this.childNodes[1].logicOp != this.logicOp && this.childNodes[1].logicOp != LogicOperator.VAR)
+                result += "(" + this.childNodes[1].ToString() + ")";
+            else
+                result += this.childNodes[1].ToString();
             return result;
         }
 
