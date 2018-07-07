@@ -20,7 +20,7 @@ namespace CTLSAT
                 Console.WriteLine(" " + v.ToString());
         }
 
-        public void check()
+        public bool check()
         {
             SymbolicState v = new SymbolicState(elementary, "v");
 
@@ -35,10 +35,18 @@ namespace CTLSAT
                 Console.WriteLine("Iteration " + i.ToString());
                 oldStates = states;
                 FormulaNode succ = genSucc(states, v);
+                FormulaNode lc1 = genLC1(states, v);
                 states = new FormulaNode(LogicOperator.AND, states, succ);
+                states = new FormulaNode(LogicOperator.AND, states, lc1);
                 if (isFixpoint(states, oldStates, v))
                     break;
             }
+
+            Console.WriteLine("Reached fixpoint. Checking for satisfying state");
+            FormulaNode formulaValue = v.valueOf(normalized);
+            FormulaNode formulaAndValid = new FormulaNode(LogicOperator.AND, states, formulaValue);
+            FormulaNode sat = v.quantify(LogicOperator.EXISTS, formulaAndValid);
+            return FormulaCNF.QBFSAT(sat);
         }
 
         /* Check if we reached a fixpoint. That is, if no states were removed from
@@ -50,6 +58,30 @@ namespace CTLSAT
             FormulaNode stateRemoved = new FormulaNode(LogicOperator.AND, oldStates, notNew);
             stateRemoved = v.quantify(LogicOperator.EXISTS, stateRemoved);
             return !FormulaCNF.QBFSAT(stateRemoved);
+        }
+
+        private FormulaNode genLC1(FormulaNode stateSet, SymbolicState state)
+        {
+            List<FormulaNode> terms = new List<FormulaNode>();
+            foreach (var e in elementary)
+            {
+                if (e.GetLogicOperator() != LogicOperator.EX)
+                    continue;
+
+                string nextName = "succ" + uniqueId.GetTicket().ToString();
+                SymbolicState next = new SymbolicState(elementary, nextName);
+                FormulaNode existsInState = state.valueOf(e);
+                FormulaNode notExistsInState = new FormulaNode(LogicOperator.NOT, existsInState, null);
+                FormulaNode nextValid = SymbolicState.substitute(stateSet, state, next);
+                FormulaNode transition = genTransition(state, next);
+                FormulaNode body = e[0];
+                FormulaNode occursNext = next.valueOf(body);
+                FormulaNode hasSucc = new FormulaNode(LogicOperator.AND, nextValid, transition);
+                hasSucc = new FormulaNode(LogicOperator.AND, hasSucc, occursNext);
+                hasSucc = next.quantify(LogicOperator.EXISTS, hasSucc);
+                terms.Add(new FormulaNode(LogicOperator.OR, notExistsInState, hasSucc));
+            }
+            return joinTerms(LogicOperator.AND, terms);
         }
 
         /* Generates a formula representing the fact that <state> has a
