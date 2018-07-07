@@ -25,7 +25,7 @@ namespace CTLSAT
             SymbolicState v = new SymbolicState(elementary, "v");
 
             // initially, all possible states belong to the structure
-            FormulaNode states = new FormulaNode("TRUE");
+            FormulaNode states = new FormulaNode(FormulaNode.TRUE_LITERAL);
             FormulaNode oldStates;
 
             int i = 0;
@@ -89,12 +89,18 @@ namespace CTLSAT
 
         private FormulaNode joinTerms(LogicOperator op, List<FormulaNode> terms)
         {
+            FormulaNode result;
             if (terms.Count == 0)
             {
                 if (op == LogicOperator.AND)
-                    return new FormulaNode("TRUE");
+                    return new FormulaNode(FormulaNode.TRUE_LITERAL);
                 if (op == LogicOperator.OR)
-                    return new FormulaNode("FALSE");
+                {
+                    // Build FALSE as ~TRUE
+                    result = new FormulaNode(LogicOperator.NOT);
+                    result.SetChildren(new FormulaNode(FormulaNode.TRUE_LITERAL), null);
+                    return result;
+                }
 
                 throw new Exception("Join with unsupported logic operator");
             }
@@ -103,7 +109,7 @@ namespace CTLSAT
             if (terms.Count == 1)
                 return terms[0];
 
-            FormulaNode result = new FormulaNode(op, terms[0], terms[1]);
+            result = new FormulaNode(op, terms[0], terms[1]);
             foreach (var t in terms.GetRange(2, terms.Count - 2))
             {
                 result = new FormulaNode(op, result, t);

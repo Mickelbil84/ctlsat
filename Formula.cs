@@ -18,12 +18,16 @@ namespace CTLSAT
         COMMA  // This is only used internally by the parsing logic
     }
 
+    
+
     /*
      * A class that represents a single node in the 
      * derivation tree of a CTL formula
      */
     public class FormulaNode
     {
+        public const string TRUE_LITERAL = "TRUE";
+
         private FormulaNode[] childNodes = new FormulaNode[2];
         private LogicOperator logicOp;
         private string name;

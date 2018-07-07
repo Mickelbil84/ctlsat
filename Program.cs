@@ -8,8 +8,12 @@ namespace CTLSAT
     {
         public static void Main(string[] args)
         {
-            CTLSatisfiabilityChecker checker = new CTLSatisfiabilityChecker(FormulaParser.parse("~p&EX(p)"));
-            checker.check();
+            Console.WriteLine(FormulaCNF.QBFSAT(FormulaParser.parse("A(y,TRUE)")));
+            Console.WriteLine(FormulaCNF.QBFSAT(FormulaParser.parse("E(y,TRUE)")));
+            Console.WriteLine(FormulaCNF.QBFSAT(FormulaParser.parse("~TRUE")));
+            Console.WriteLine(FormulaCNF.QBFSAT(FormulaParser.parse("TRUE")));
+            Console.WriteLine(FormulaCNF.QBFSAT(FormulaParser.parse("~~TRUE")));
+            Console.WriteLine(FormulaCNF.QBFSAT(FormulaParser.parse("TRUE & ~TRUE")));
         }
 
         public static string convSAT(bool b)

@@ -144,14 +144,25 @@ namespace CTLSAT
             ISet<TseytinBlock> blockSet = new HashSet<TseytinBlock>();
             ticketMachine.Reset();
             TseytinBlock top = GetTseytinBlocks(formula, blockSet);
+            if (top == null)
+            {
+                // The formula is simply a variable - no Tseitin blocks required
+                res.Add(new HashSet<string> { formula.GetName() });
+            }
+            else
+            {
+                // Create a conjunction of all Tseitin blocks
+                foreach (TseytinBlock block in blockSet)
+                    res.UnionWith(TseytinBlockToCNF(block));
 
-            foreach (TseytinBlock block in blockSet)
-                res.UnionWith(TseytinBlockToCNF(block));
+                // Add the requirement that the topmost formula is true
+                ISet<string> topClause = new HashSet<string>();
+                topClause.Add(top.ticket.ToString());
+                res.Add(topClause);
+            }
 
-            // Add the requirement that the topmost formula is true
-            ISet<string> topClause = new HashSet<string>();
-            topClause.Add(top.ticket.ToString());
-            res.Add(topClause);
+            // Force the TRUE variable to true
+            res.Add(new HashSet<string> { "TRUE" });
 
             return res;
         }
