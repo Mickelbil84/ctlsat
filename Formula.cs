@@ -390,7 +390,7 @@ namespace CTLSAT
 
         // Trnasfer the node to PNF (the formula is assumed to be in NNF)
         // We assume that the formula also has no temporal operators
-        public FormulaNode PNF()
+        /*public FormulaNode PNF()
         {
             if (this.logicOp == LogicOperator.VAR)
                 return new FormulaNode(this.name);
@@ -471,7 +471,102 @@ namespace CTLSAT
             }
 
             return res;
+        }*/
+
+        public FormulaNode PNF()
+        {
+            return this.FastPNF();
         }
+
+        private static ISet<string> variables;
+
+        private FormulaNode FastPNFRec()
+        {
+            if (this.logicOp == LogicOperator.VAR)
+                return new FormulaNode(this.name);
+
+            FormulaNode res = null, left = null, right = null;
+            string varname;
+
+            if (this.logicOp == LogicOperator.NOT)
+            {
+                res = new FormulaNode(LogicOperator.NOT);
+                res.SetChildren(new FormulaNode(this.childNodes[0].name), null);
+                return res;
+            }
+
+            if (this.logicOp == LogicOperator.EXISTS ||
+                this.logicOp == LogicOperator.ALL)
+            {
+                res = new FormulaNode(this.logicOp, this.name);
+                res.SetChildren(this.childNodes[0].FastPNFRec(), null);
+                return res;
+            }
+
+            // Since we assume NNF, all NOT nodes are next to variables
+            // Thus all of the remaining operators are binary
+            left = this.childNodes[0].FastPNFRec();
+            right = this.childNodes[1].FastPNFRec();
+
+            if (this.logicOp == LogicOperator.AND ||
+                this.logicOp == LogicOperator.OR)
+            {
+                FormulaNode temp;
+                if (left.logicOp == LogicOperator.EXISTS ||
+                    left.logicOp == LogicOperator.ALL)
+                {
+                    if (variables.Contains(left.name))
+                    {
+                        varname = right.UniqueVariable();
+                        left = left.Substitute(left.name, varname);
+                        variables.Add(varname);
+                    }
+
+                    res = new FormulaNode(left.logicOp, left.name);
+                    temp = new FormulaNode(this.logicOp);
+                    temp.SetChildren(left.childNodes[0], right);
+                    res.SetChildren(temp.FastPNFRec(), null);
+                }
+                else if (right.logicOp == LogicOperator.EXISTS ||
+                         right.logicOp == LogicOperator.ALL)
+                {
+                    if (variables.Contains(right.name))
+                    {
+                        varname = left.UniqueVariable();
+                        right = right.Substitute(right.name, varname);
+                        variables.Add(varname);
+                    }
+
+                    res = new FormulaNode(right.logicOp, right.name);
+                    temp = new FormulaNode(this.logicOp);
+                    temp.SetChildren(left, right.childNodes[0]);
+                    res.SetChildren(temp.FastPNFRec(), null);
+                }
+                else
+                {
+                    res = new FormulaNode(this.logicOp);
+                    res.SetChildren(left, right);
+                }
+            }
+
+            // For convenience, we get rid of "->" operators
+            if (this.logicOp == LogicOperator.IMP)
+            {
+                res = new FormulaNode(LogicOperator.OR);
+                res.SetChildren(new FormulaNode(LogicOperator.NOT), right);
+                res.childNodes[0].SetChildren(left, null);
+                res = res.NNF().FastPNFRec();
+            }
+
+            return res;
+        }
+
+        public FormulaNode FastPNF()
+        {
+            variables = this.GetVariables();
+            return this.FastPNFRec();
+        }
+
 
         // For a PNF formula, return the non-quanitifed part
         public FormulaNode GetPropositional()

@@ -19,9 +19,9 @@ namespace CTLSAT
         {
             normalized = formula.implementComplexOperators().NNF();
             elementary = CTLUtils.positiveElementary(normalized);
-            Console.WriteLine("Positive Elementary:");
+            /*Console.WriteLine("Positive Elementary:");
             foreach (var v in elementary)
-                Console.WriteLine(" " + v.ToString());
+                Console.WriteLine(" " + v.ToString());*/
         }
 
         public bool check()

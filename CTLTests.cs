@@ -45,7 +45,7 @@ namespace CTLSAT
             stopwatch.Start();
             for (int i = 0; i < num; i++)
             {
-                try 
+                /*try 
                 {
                     if (!test(formula, param))
                     {
@@ -58,6 +58,12 @@ namespace CTLSAT
                     res.result = false;
                     log += e.Message;
                     log += "\n";
+                    break;
+                }*/
+
+                if (!test(formula, param))
+                {
+                    res.result = false;
                     break;
                 }
 
@@ -200,8 +206,8 @@ namespace CTLSAT
         // (All rights are reserved for the owners)
         public static void TestArticle(int num = 100)
         {
-            //Run induction
-            int[] indc_params = { 16, 20, 24, 28 };
+            /*//Run induction
+            int[] indc_params = { 1,2,3,16, 20, 24, 28 };
             RunTestParams("induction", TestValidity, TestInduction, indc_params, num);
 
             //Run precede
@@ -214,7 +220,11 @@ namespace CTLSAT
 
             //Run nobase
             int[] nbse_params = { 16, 20, 24, 28 };
-            RunTestParams("nobase", TestSAT, TestNoBase, nbse_params, num);
+            RunTestParams("nobase", TestSAT, TestNoBase, nbse_params, num);*/
+
+            int[] indc_params = { 1, 2 };
+            RunTestParams("induction", TestValidity, TestInduction, indc_params, num);
+
         }
 
         public static void ShowLog()
