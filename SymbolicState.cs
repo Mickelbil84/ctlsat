@@ -36,11 +36,7 @@ namespace CTLSAT
                     return new FormulaNode(elementaryNames[formula]);
 
                 case LogicOperator.AX:
-                    FormulaNode notBody;
-                    if (formula[0].GetLogicOperator() == LogicOperator.NOT)
-                        notBody = formula[0][0];
-                    else
-                        notBody = new FormulaNode(LogicOperator.NOT, formula[0], null);
+                    FormulaNode notBody = CTLUtils.nnfNegate(formula[0]);
                     FormulaNode ex = new FormulaNode(LogicOperator.EX, notBody, null);
                     FormulaNode exValue = valueOf(ex);
                     return new FormulaNode(LogicOperator.NOT, exValue, null);
@@ -50,10 +46,10 @@ namespace CTLSAT
                     return new FormulaNode(formula.GetLogicOperator(), valueOf(formula[0]), valueOf(formula[1]));
 
                 case LogicOperator.NOT:
-                    if (formula[0].GetLogicOperator() == LogicOperator.NOT)
-                        return valueOf(formula[0][0]);
-                    else
-                        return new FormulaNode(LogicOperator.NOT, valueOf(formula[0]), null);
+                    if (!elementaryNames.ContainsKey(formula[0]))
+                        throw new Exception("Argument to SymbolicState.valueOf must be contained in the closure, and in NNF form.");
+                    FormulaNode bodyVar = new FormulaNode(elementaryNames[formula[0]]);
+                    return new FormulaNode(LogicOperator.NOT, bodyVar, null);
 
                 default:
                     throw new NotImplementedException();
