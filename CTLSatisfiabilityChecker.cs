@@ -243,7 +243,8 @@ namespace CTLSAT
             return joinTerms(LogicOperator.AND, terms);
         }
 
-        private FormulaNode joinTerms(LogicOperator op, List<FormulaNode> terms)
+        // TODO: Move to Formula.cs
+        public static FormulaNode joinTerms(LogicOperator op, List<FormulaNode> terms)
         {
             FormulaNode result;
             if (terms.Count == 0)

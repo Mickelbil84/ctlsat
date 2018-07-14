@@ -8,8 +8,8 @@ namespace CTLSAT
     {
         public static void Main(string[] args)
         {
-            var checker = new CTLSatisfiabilityChecker(FormulaParser.parse("AX(p&q)")); 
-            Console.WriteLine(checker.check());
+            CTLTests.TestArticle();
+            CTLTests.ShowLog();
         }
 
         public static string convSAT(bool b)
