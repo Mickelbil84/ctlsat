@@ -33,7 +33,6 @@
     <Reference Include="System" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="CTLSatisfiabilityChecker.cs" />
     <Compile Include="CTLUtils.cs" />
     <Compile Include="FormulaParser.cs" />
     <Compile Include="Program.cs" />
@@ -42,6 +41,7 @@
     <Compile Include="FormulaCNF.cs" />
     <Compile Include="SymbolicState.cs" />
     <Compile Include="TicketMachine.cs" />
+    <Compile Include="CTLSatisfiabilityChecker.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />

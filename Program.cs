@@ -8,7 +8,7 @@ namespace CTLSAT
     {
         public static void Main(string[] args)
         {
-            CTLSatisfiabilityChecker checker = new CTLSatisfiabilityChecker(FormulaParser.parse("EX(p)&~EX(p)"));
+            CTLSatisfiabilityChecker checker = new CTLSatisfiabilityChecker(FormulaParser.parse("EX(p)&~EX(p)")); 
             Console.WriteLine(checker.check());
         }
 
