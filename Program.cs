@@ -8,7 +8,7 @@ namespace CTLSAT
     {
         public static void Main(string[] args)
         {
-            var checker = new CTLSatisfiabilityChecker(FormulaParser.parse("AX(p&q)")); 
+            var checker = new CTLSatisfiabilityChecker(FormulaParser.parse("~p & ~q & AU(p,q)"));
             Console.WriteLine(checker.check());
         }
 

@@ -192,8 +192,8 @@ namespace CTLSAT
                 frag = new FormulaNode(LogicOperator.AND, frag, newFrag);
                 frag = next.quantify(LogicOperator.EXISTS, frag);
 
-                frag = new FormulaNode(LogicOperator.AND, state.valueOf(fragKey[0]), frag);
-                frag = new FormulaNode(LogicOperator.OR, state.valueOf(fragKey[1]), frag);
+                frag = new FormulaNode(LogicOperator.AND, state.valueOf(fragKey[0].NNF()), frag);
+                frag = new FormulaNode(LogicOperator.OR, state.valueOf(fragKey[1].NNF()), frag);
 
                 // Add the big conjunction needed for fragAU
                 List<FormulaNode> fragTerms = new List<FormulaNode>();
