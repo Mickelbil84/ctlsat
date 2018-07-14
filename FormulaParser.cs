@@ -102,7 +102,8 @@ namespace CTLSAT
 
                 if (ch == '(' && nest == 1)
                 {
-                    tokens.Add(identifyToken(token));
+                    if (token != "")
+                        tokens.Add(identifyToken(token));
                     token = "";
                     continue;
                 }
