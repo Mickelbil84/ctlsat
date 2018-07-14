@@ -42,6 +42,7 @@
     <Compile Include="SymbolicState.cs" />
     <Compile Include="TicketMachine.cs" />
     <Compile Include="CTLSatisfiabilityChecker.cs" />
+    <Compile Include="CTLTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />
