@@ -22,6 +22,8 @@ namespace CTLSAT
                 nameToElementary[prefix + i.ToString()] = e;
                 i++;
             }
+            elementaryNames[new FormulaNode(FormulaNode.TRUE_LITERAL)] = FormulaNode.TRUE_LITERAL;
+            nameToElementary[FormulaNode.TRUE_LITERAL] = new FormulaNode(FormulaNode.TRUE_LITERAL);
         }
 
         /* Build a propositional formula representing the value of the given CTL

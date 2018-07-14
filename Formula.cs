@@ -29,6 +29,7 @@ namespace CTLSAT
         public const string TRUE_LITERAL = "TRUE";
 
         private FormulaNode[] childNodes = new FormulaNode[2];
+
         private LogicOperator logicOp;
         private string name;
         public FormulaNode() {}
@@ -234,6 +235,47 @@ namespace CTLSAT
             }
 
             return res;
+        }
+
+        // replace ->, AF, AG, EF and EG with simpler operators
+        public FormulaNode implementComplexOperators()
+        {
+            FormulaNode leftChild = null;
+            FormulaNode rightChild = null;
+            FormulaNode trueFormula = new FormulaNode(TRUE_LITERAL);
+            FormulaNode falseFormula = new FormulaNode(LogicOperator.NOT, trueFormula, null);
+            FormulaNode result;
+            if (this[0] != null)
+                leftChild = this[0].implementComplexOperators();
+            if (this[1] != null)
+                rightChild = this[1].implementComplexOperators();
+            switch (logicOp) {
+                // (a -> b) is (~a | b)
+                case LogicOperator.IMP:
+                    FormulaNode left = new FormulaNode(LogicOperator.NOT, leftChild, null);
+                    return new FormulaNode(LogicOperator.OR, left, rightChild);
+
+                // EF(f) is EU(TRUE, f)
+                case LogicOperator.EF:
+                    return new FormulaNode(LogicOperator.EU, trueFormula, leftChild);
+
+                // EG(f) is EU(FALSE, f)
+                case LogicOperator.EG:
+                    return new FormulaNode(LogicOperator.EU, falseFormula, leftChild);
+
+                // AF(f) is AU(TRUE, f)
+                case LogicOperator.AF:
+                    return new FormulaNode(LogicOperator.AU, trueFormula, leftChild);
+
+                // AG(f) is AU(FALSE, f)
+                case LogicOperator.AG:
+                    return new FormulaNode(LogicOperator.AU, falseFormula, leftChild);
+
+                default:
+                    result = new FormulaNode(logicOp, name);
+                    result.SetChildren(leftChild, rightChild);
+                    return result;
+            }
         }
 
         // Transfer the node to NNF 

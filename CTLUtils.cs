@@ -53,8 +53,11 @@ namespace CTLSAT
                     result.UnionWith(elementaryFormulas(formula[0]));
                     break;
                 case LogicOperator.VAR:
-                    result.Add(formula);
-                    result.Add(nnfNegate(formula));
+                    if (formula.GetName() != FormulaNode.TRUE_LITERAL)
+                    {
+                        result.Add(formula);
+                        result.Add(nnfNegate(formula));
+                    }
                     break;
                 default:
                     throw new Exception("Not implemented");
