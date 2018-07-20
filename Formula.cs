@@ -32,6 +32,7 @@ namespace CTLSAT
 
         private LogicOperator logicOp;
         private ISet<string> variableSet;
+        private static TicketMachine nameGenerator = new TicketMachine();
 
         private string name;
         public FormulaNode() {}
@@ -186,7 +187,8 @@ namespace CTLSAT
 
             if (this.logicOp == LogicOperator.VAR)
             {
-                res.Add(this.name);
+                if (this.name != TRUE_LITERAL)
+                    res.Add(this.name);
                 return res;
             }
 
@@ -230,22 +232,10 @@ namespace CTLSAT
             return res;
         }
 
-        // Return a new variable that doesn't appear in the formula
-        public string UniqueVariable()
+        // Return a new temporary variable that wasn't used in any PNF conversion before
+        private static string UniquePNFVariable()
         {
-            ISet<string> variables = this.GetVariables();
-            string res = "";
-            int index = 0;
-
-            while (true)
-            {
-                res = "p" + index.ToString();
-                if (!variables.Contains(res))
-                    break;
-                index++;
-            }
-
-            return res;
+            return "P" + nameGenerator.GetTicket().ToString();
         }
 
         // replace ->, AF, AG, EF and EG with simpler operators
@@ -442,7 +432,7 @@ namespace CTLSAT
                 {
                     if (rightSet.Contains(left.name))
                     {
-                        varname = right.UniqueVariable();
+                        varname = UniquePNFVariable();
                         left = left.Substitute(left.name, varname);
                     }
 
@@ -456,7 +446,7 @@ namespace CTLSAT
                 {
                     if (leftSet.Contains(right.name))
                     {
-                        varname = left.UniqueVariable();
+                        varname = UniquePNFVariable();
                         right = right.Substitute(right.name, varname);
                     }
 
