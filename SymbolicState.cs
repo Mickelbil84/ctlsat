@@ -19,7 +19,7 @@ namespace CTLSAT
             foreach (var e in positiveElementary)
             {
                 elementaryNames[e] = prefix + "_" + i.ToString();
-                nameToElementary[prefix + i.ToString()] = e;
+                nameToElementary[elementaryNames[e]] = e;
                 i++;
             }
         }
