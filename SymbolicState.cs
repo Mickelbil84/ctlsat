@@ -22,8 +22,6 @@ namespace CTLSAT
                 nameToElementary[prefix + i.ToString()] = e;
                 i++;
             }
-            elementaryNames[new FormulaNode(FormulaNode.TRUE_LITERAL)] = FormulaNode.TRUE_LITERAL;
-            nameToElementary[FormulaNode.TRUE_LITERAL] = new FormulaNode(FormulaNode.TRUE_LITERAL);
         }
 
         /* Build a propositional formula representing the value of the given CTL
@@ -38,6 +36,9 @@ namespace CTLSAT
                 case LogicOperator.EX:
                     // literals and EX(...) formulas are considered positive elementary,
                     // and so should correspond directly to a propositional variable
+                    if (formula.GetLogicOperator() == LogicOperator.VAR &&
+                        formula.GetName() == FormulaNode.TRUE_LITERAL)
+                        return new FormulaNode(FormulaNode.TRUE_LITERAL);
                     return new FormulaNode(elementaryNames[formula]);
 
                 case LogicOperator.AX:
@@ -83,9 +84,14 @@ namespace CTLSAT
                     return new FormulaNode(formula.GetLogicOperator(), valueOf(formula[0]), valueOf(formula[1]));
 
                 case LogicOperator.NOT:
-                    if (!elementaryNames.ContainsKey(formula[0]))
+                    FormulaNode bodyVar;
+                    if (formula[0].GetLogicOperator() == LogicOperator.VAR &&
+                        formula[0].GetName() == FormulaNode.TRUE_LITERAL)
+                        bodyVar = new FormulaNode(FormulaNode.TRUE_LITERAL);
+                    else if (!elementaryNames.ContainsKey(formula[0]))
                         throw new Exception("Argument to SymbolicState.valueOf must be contained in the closure, and in NNF form.");
-                    FormulaNode bodyVar = new FormulaNode(elementaryNames[formula[0]]);
+                    else
+                        bodyVar = new FormulaNode(elementaryNames[formula[0]]);
                     return new FormulaNode(LogicOperator.NOT, bodyVar, null);
 
                 default:

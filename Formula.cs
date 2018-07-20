@@ -508,6 +508,11 @@ namespace CTLSAT
             left = this.childNodes[0].FastPNFRec();
             right = this.childNodes[1].FastPNFRec();
 
+#if DEBUG
+            if (!VerifyDisjointQuantifiers(left, right))
+                throw new Exception("PNF error");
+#endif
+
             if (this.logicOp == LogicOperator.AND ||
                 this.logicOp == LogicOperator.OR)
             {
@@ -578,6 +583,39 @@ namespace CTLSAT
             }
 
             return res;
+        }
+
+        // Tests whether variables that are quantified in <left> don't appear in <right>
+        // (quantified or not) and vice versa.
+        // Assumes <left> and <right> are in PNF form.
+        private bool VerifyDisjointQuantifiers(FormulaNode left, FormulaNode right)
+        {
+            ISet<string> leftVars = left.GetVariables();
+            ISet<string> rightVars = right.GetVariables();
+            ISet<string> leftQuantified = left.GetLeadingQuantifiedVars();
+            ISet<string> rightQuantified = right.GetLeadingQuantifiedVars();
+
+            leftVars.IntersectWith(rightQuantified);
+            if (leftVars.Count > 0)
+                return false;
+
+            rightVars.IntersectWith(leftQuantified);
+            if (rightVars.Count > 0)
+                return false;
+            return true;
+        }
+
+        private ISet<string> GetLeadingQuantifiedVars()
+        {
+            ISet<string> result = new HashSet<string>();
+            FormulaNode ptr = this;
+            while (ptr.logicOp == LogicOperator.EXISTS ||
+                    ptr.logicOp == LogicOperator.ALL)
+            {
+                result.Add(ptr.name);
+                ptr = ptr[0];
+            }
+            return result;
         }
 
         public FormulaNode FastPNF()
