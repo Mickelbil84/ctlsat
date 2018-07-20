@@ -203,6 +203,13 @@ namespace CTLSAT
                     if (el.GetLogicOperator() != LogicOperator.EX)
                         continue;
 
+                    nextName = "succ" + uniqueId.GetTicket().ToString();
+                    next = new SymbolicState(elementary, nextName);
+                    transition = genTransition(state, next);
+                    memberOf = SymbolicState.substitute(stateSet, state, next);
+                    newFrag = SymbolicState.substitute(fragAU[fragKey], state, next);
+
+
                     FormulaNode lhs = state.valueOf(el);
                     FormulaNode rhs = new FormulaNode(LogicOperator.AND, transition, memberOf);
                     rhs = new FormulaNode(LogicOperator.AND, rhs, newFrag);
