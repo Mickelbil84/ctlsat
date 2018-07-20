@@ -346,14 +346,10 @@ namespace CTLSAT
         public static bool QBFSAT(FormulaNode formula)
         {
             // First convert the formula to PNF
-            formula = formula.NNF().FastPNF();
+            formula = formula.NNF().PNF();
             // Then convert it to QBCNF
 
-            Console.WriteLine("Reached CNF");
-
             QBCNFormula qbcnf = ConvertToCNF(formula);
-
-            Console.WriteLine("Reached QDIMACS");
 
             // Now create a QDIMACS file and send it to 
             // a QBF solver

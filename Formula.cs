@@ -31,12 +31,15 @@ namespace CTLSAT
         private FormulaNode[] childNodes = new FormulaNode[2];
 
         private LogicOperator logicOp;
+        private ISet<string> variableSet;
+
         private string name;
         public FormulaNode() {}
         public FormulaNode(string name)
         {
             this.name = name;
             this.logicOp = LogicOperator.VAR;
+            this.variableSet = null;
         }
         public FormulaNode(LogicOperator logicOp)
         {
@@ -93,18 +96,21 @@ namespace CTLSAT
         public void SetName(string name)
         {
             this.name = name;
+            this.variableSet = null;
         }
 
         public void SetVariable(string name)
         {
             this.name = name;
             this.logicOp = LogicOperator.VAR;
+            this.variableSet = null;
         }
 
         public void SetChildren(FormulaNode left, FormulaNode right)
         {
             this.childNodes[0] = left;
             this.childNodes[1] = right;
+            this.variableSet = null;
         }
 
         public override bool Equals(Object other)
@@ -175,6 +181,9 @@ namespace CTLSAT
         {
             ISet<string> res = new HashSet<string>();
 
+            if (this.variableSet != null)
+                return this.variableSet;
+
             if (this.logicOp == LogicOperator.VAR)
             {
                 res.Add(this.name);
@@ -188,6 +197,8 @@ namespace CTLSAT
             for (int i = 0; i < 2; i++)
                 if (this.childNodes[i] != null)
                     res.UnionWith(this.childNodes[i].GetVariables());
+
+            this.variableSet = res;
 
             return res;
         }
@@ -259,9 +270,9 @@ namespace CTLSAT
                 case LogicOperator.EF:
                     return new FormulaNode(LogicOperator.EU, trueFormula, leftChild);
 
-                // EG(f) is EU(FALSE, f)
+                // EG(f) is ER(FALSE, f)
                 case LogicOperator.EG:
-                    return new FormulaNode(LogicOperator.EU, falseFormula, leftChild);
+                    return new FormulaNode(LogicOperator.ER, falseFormula, leftChild);
 
                 // AF(f) is AU(TRUE, f)
                 case LogicOperator.AF:
@@ -269,7 +280,7 @@ namespace CTLSAT
 
                 // AG(f) is AU(FALSE, f)
                 case LogicOperator.AG:
-                    return new FormulaNode(LogicOperator.AU, falseFormula, leftChild);
+                    return new FormulaNode(LogicOperator.AR, falseFormula, leftChild);
 
                 default:
                     result = new FormulaNode(logicOp, name);
@@ -390,7 +401,7 @@ namespace CTLSAT
 
         // Trnasfer the node to PNF (the formula is assumed to be in NNF)
         // We assume that the formula also has no temporal operators
-        /*public FormulaNode PNF()
+        public FormulaNode PNF()
         {
             if (this.logicOp == LogicOperator.VAR)
                 return new FormulaNode(this.name);
@@ -471,9 +482,9 @@ namespace CTLSAT
             }
 
             return res;
-        }*/
+        }
 
-        public FormulaNode PNF()
+        /*public FormulaNode PNF()
         {
             return this.FastPNF();
         }
@@ -622,7 +633,7 @@ namespace CTLSAT
         {
             variables = this.GetVariables();
             return this.FastPNFRec();
-        }
+        }*/
 
 
         // For a PNF formula, return the non-quanitifed part
