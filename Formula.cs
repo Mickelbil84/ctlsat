@@ -486,7 +486,7 @@ namespace CTLSAT
                 return new FormulaNode(this.name);
 
             FormulaNode res = null, left = null, right = null;
-            string varname;
+            //string varname;
 
             if (this.logicOp == LogicOperator.NOT)
             {
@@ -511,41 +511,60 @@ namespace CTLSAT
             if (this.logicOp == LogicOperator.AND ||
                 this.logicOp == LogicOperator.OR)
             {
-                FormulaNode temp;
-                if (left.logicOp == LogicOperator.EXISTS ||
+                FormulaNode temp, ptr = null;
+                while (left.logicOp == LogicOperator.EXISTS ||
                     left.logicOp == LogicOperator.ALL)
                 {
                     if (variables.Contains(left.name))
                     {
-                        varname = right.UniqueVariable();
-                        left = left.Substitute(left.name, varname);
-                        variables.Add(varname);
+                        //varname = right.UniqueVariable();
+                        //left = left.Substitute(left.name, varname);
+                        //variables.Add(varname);
                     }
 
-                    res = new FormulaNode(left.logicOp, left.name);
-                    temp = new FormulaNode(this.logicOp);
-                    temp.SetChildren(left.childNodes[0], right);
-                    res.SetChildren(temp.FastPNFRec(), null);
+                    temp = new FormulaNode(left.logicOp, left.name);
+                    if (res == null)
+                        res = ptr = temp;
+                    else 
+                    {
+                        ptr.childNodes[0] = temp;
+                        ptr = ptr[0];
+                    }
+
+                    left = left[0];
                 }
-                else if (right.logicOp == LogicOperator.EXISTS ||
-                         right.logicOp == LogicOperator.ALL)
+
+                while (right.logicOp == LogicOperator.EXISTS ||
+                    right.logicOp == LogicOperator.ALL)
                 {
                     if (variables.Contains(right.name))
                     {
-                        varname = left.UniqueVariable();
-                        right = right.Substitute(right.name, varname);
-                        variables.Add(varname);
+                        //varname = left.UniqueVariable();
+                        //right = right.Substitute(right.name, varname);
+                        //variables.Add(varname);
                     }
 
-                    res = new FormulaNode(right.logicOp, right.name);
-                    temp = new FormulaNode(this.logicOp);
-                    temp.SetChildren(left, right.childNodes[0]);
-                    res.SetChildren(temp.FastPNFRec(), null);
+                    temp = new FormulaNode(right.logicOp, right.name);
+                    if (res == null)
+                        res = ptr = temp;
+                    else
+                    {
+                        ptr.childNodes[0] = temp;
+                        ptr = ptr[0];
+                    }
+
+                    right = right[0];
                 }
-                else
+
+                if (res == null)
                 {
                     res = new FormulaNode(this.logicOp);
                     res.SetChildren(left, right);
+                }
+                else
+                {
+                    ptr.childNodes[0] = new FormulaNode(this.logicOp);
+                    ptr.childNodes[0].SetChildren(left, right);
                 }
             }
 

@@ -206,7 +206,7 @@ namespace CTLSAT
         // (All rights are reserved for the owners)
         public static void TestArticle(int num = 100)
         {
-            /*//Run induction
+            //Run induction
             int[] indc_params = { 1,2,3,16, 20, 24, 28 };
             RunTestParams("induction", TestValidity, TestInduction, indc_params, num);
 
@@ -220,10 +220,7 @@ namespace CTLSAT
 
             //Run nobase
             int[] nbse_params = { 16, 20, 24, 28 };
-            RunTestParams("nobase", TestSAT, TestNoBase, nbse_params, num);*/
-
-            int[] indc_params = { 1, 2 };
-            RunTestParams("induction", TestValidity, TestInduction, indc_params, num);
+            RunTestParams("nobase", TestSAT, TestNoBase, nbse_params, num);
 
         }
 
