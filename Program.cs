@@ -13,6 +13,7 @@ namespace CTLSAT
 
             CTLTests.TestArticle(1);
             //CTLTests.ShowLog();
+            Console.ReadKey();
         }
 
         public static string convSAT(bool b)

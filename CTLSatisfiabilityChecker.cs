@@ -46,7 +46,7 @@ namespace CTLSAT
                 states = new FormulaNode(LogicOperator.AND, states, lc1);
                 states = new FormulaNode(LogicOperator.AND, states, e);
                 states = new FormulaNode(LogicOperator.AND, states, a);
-                if (isFixpoint(states, oldStates, v))
+                if (isFixpoint(oldStates, states, v))
                     break;
             }
 

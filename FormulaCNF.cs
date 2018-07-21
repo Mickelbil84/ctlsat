@@ -138,7 +138,8 @@ namespace CTLSAT
         private static TicketMachine ticketMachine = new TicketMachine();
 
         // Get a propositional formula and return its (raw) CNF form
-        private static ISet<ISet<string>> TseytinTransformation(FormulaNode formula)
+        // addedVars: the names of the new variables introduced by the transformation
+        private static ISet<ISet<string>> TseytinTransformation(FormulaNode formula, out ISet<string> addedVars)
         {
             ISet<ISet<string>> res = new HashSet<ISet<string>>();
             ISet<TseytinBlock> blockSet = new HashSet<TseytinBlock>();
@@ -160,6 +161,10 @@ namespace CTLSAT
                 topClause.Add(top.ticket.ToString());
                 res.Add(topClause);
             }
+
+            addedVars = new HashSet<string>();
+            foreach (TseytinBlock block in blockSet)
+                addedVars.Add(block.ticket.ToString());
 
             // Force the TRUE variable to true
             res.Add(new HashSet<string> { "TRUE" });
@@ -248,6 +253,7 @@ namespace CTLSAT
         {
             QBCNFormula res = new QBCNFormula();
             FormulaNode node = formula;
+            ISet<string> addedVars;
 
             res.quantifiers = new List<string>();
             while (node.GetLogicOperator() == LogicOperator.EXISTS ||
@@ -260,7 +266,7 @@ namespace CTLSAT
                 node = node.GetLeftChild();
             }
 
-            res.propositional = TseytinTransformation(node);
+            res.propositional = TseytinTransformation(node, out addedVars);
 
             //Replace strings with numbers
             ISet<string> literals = res.GetLiterals();
@@ -287,6 +293,10 @@ namespace CTLSAT
             }
 
             res.ReplaceLiterals(changes);
+
+            // Quantify the Tseytin variables with EXISTS
+            foreach (string var in addedVars)
+                res.quantifiers.Add("e" + var);
 
             return res;
         }

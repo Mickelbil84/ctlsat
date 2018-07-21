@@ -115,7 +115,7 @@ namespace CTLSAT
                     continue;
                 }
 
-                if (Char.IsLetterOrDigit(ch) || nest > 0)
+                if (Char.IsLetterOrDigit(ch) || ch == '_' || nest > 0)
                     token += ch;
                 else
                 {
