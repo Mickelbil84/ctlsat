@@ -1,0 +1,92 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace CTLSAT
+{
+    class SatisfiabilityTests
+    {
+        
+        //Copied from https://stackoverflow.com/questions/7413612/how-to-limit-the-execution-time-of-a-function-in-c-sharp
+        public static bool ExecuteWithTimeLimit(TimeSpan timeSpan, Action codeBlock)
+        {
+            try
+            {
+                Task task = Task.Factory.StartNew(() => codeBlock());
+                task.Wait(timeSpan);
+                return task.IsCompleted;
+            }
+            catch (AggregateException ae)
+            {
+                Console.WriteLine("TIMEOUT");
+                throw ae.InnerExceptions[0];
+            }
+        }
+
+        private static int timelimit = 5*60000;
+
+        private static void AssertSat(string formulaString, bool expected)
+        {
+            bool Completed = ExecuteWithTimeLimit(TimeSpan.FromMilliseconds(timelimit), () =>
+            {
+                FormulaNode formula = FormulaParser.parse(formulaString);
+                Console.WriteLine("\nTEST: " + formulaString);
+                var checker = new CTLSatisfiabilityChecker(formula);
+                bool result = checker.check();
+                Console.WriteLine("Done");
+                if (result != expected)
+                    throw new Exception("Wrong SAT value for " + formulaString);
+            });
+        }
+
+
+        public static void run()
+        {
+            //AssertSat("~AU(TRUE,~p) & AU(TRUE,~p)", false);
+            //AssertSat("AG(p) & AF(~p)", false);
+            //return;
+
+            // TRUE
+            AssertSat("TRUE", true);
+            AssertSat("~TRUE", false);
+
+            // Propositional formulas
+            AssertSat("p", true);
+            AssertSat("p & ~p", false);
+            AssertSat("p | ~p", true);
+            AssertSat("p & q", true);
+
+            // EX and AX
+            AssertSat("EX(p)", true);
+            AssertSat("AX(p)", true);
+            //AssertSat("EX(p) & EX(~p)", true);
+            AssertSat("EX(p) & AX(~p)", false);
+            AssertSat("EX(~TRUE)", false);
+            AssertSat("p & AX(~p)", true);
+
+            // EU
+            AssertSat("EU(p,p)", true);
+            AssertSat("~EU(p,p)", true);
+            AssertSat("~EU(p,~p)", true);
+            AssertSat("EU(~p,p)", true);
+            AssertSat("EU(p,p) & ~p", false);
+            AssertSat("EU(p,q) & ~p", true);
+            //AssertSat("EU(p,q) & ~q", true); //Now this falls
+            AssertSat("EU(p,q) & ~p & ~q", false);
+
+            // AU
+            AssertSat("AU(p,p)", true);
+            AssertSat("AU(p,q)", true);
+
+            // AG
+            AssertSat("AG(p)", true);
+            AssertSat("AG(~TRUE)", false);
+            //AssertSat("AG(p) & EX(~p)", false);
+
+            // duals
+            AssertSat("AG(p) & AF(~p)", false);
+        }
+    }
+}

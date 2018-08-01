@@ -42,6 +42,12 @@ namespace CTLSAT
                 FormulaNode lc1 = genLC1(states, v);
                 FormulaNode e = genE(states, v);
                 FormulaNode a = genA(states, v);
+
+                //Console.WriteLine(succ);
+                //Console.WriteLine();
+                //Console.WriteLine(lc1);
+                //Console.WriteLine();
+
                 states = new FormulaNode(LogicOperator.AND, states, succ);
                 states = new FormulaNode(LogicOperator.AND, states, lc1);
                 states = new FormulaNode(LogicOperator.AND, states, e);
@@ -131,7 +137,8 @@ namespace CTLSAT
 
                 // Create the fragEU iteration
                 if (!fragEU.Keys.Contains(e[0]))
-                    fragEU[e[0]] = new FormulaNode(FormulaNode.TRUE_LITERAL);
+                    //fragEU[e[0]] = new FormulaNode(FormulaNode.TRUE_LITERAL);
+                    fragEU[e[0]] = FormulaParser.parse("~TRUE");
                 FormulaNode frag = fragEU[e[0]];
                 string nextName = "succ" + uniqueId.GetTicket().ToString();
                 SymbolicState next = new SymbolicState(elementary, nextName);
@@ -180,8 +187,12 @@ namespace CTLSAT
                 fragKey[0].SetChildren(e[0][0], null);
                 fragKey[1].SetChildren(e[0][1], null);
 
+                //BUGFIX - mu calculus instead of nu
+                //if (!fragAU.Keys.Contains(fragKey))
+                //    fragAU[fragKey] = new FormulaNode(FormulaNode.TRUE_LITERAL);
                 if (!fragAU.Keys.Contains(fragKey))
-                    fragAU[fragKey] = new FormulaNode(FormulaNode.TRUE_LITERAL);
+                    fragAU[fragKey] = FormulaParser.parse("~TRUE");
+                
                 FormulaNode frag = fragAU[fragKey];
                 string nextName = "succ" + uniqueId.GetTicket().ToString();
                 SymbolicState next = new SymbolicState(elementary, nextName);

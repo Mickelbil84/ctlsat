@@ -43,6 +43,7 @@
     <Compile Include="TicketMachine.cs" />
     <Compile Include="CTLSatisfiabilityChecker.cs" />
     <Compile Include="CTLTests.cs" />
+    <Compile Include="SatisfiabilityTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />

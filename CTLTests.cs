@@ -207,20 +207,20 @@ namespace CTLSAT
         public static void TestArticle(int num = 100)
         {
             //Run induction
-            int[] indc_params = { 1,2,3,16, 20, 24, 28 };
-            RunTestParams("induction", TestValidity, TestInduction, indc_params, num);
+            //int[] indc_params = { 1,2,3,16, 20, 24, 28 };
+            //RunTestParams("induction", TestValidity, TestInduction, indc_params, num);
 
             //Run precede
-            int[] prec_params = { 16, 32, 64, 128 };
+            int[] prec_params = { 1, 16, 32, 64, 128 };
             RunTestParams("precede", TestValidity, TestPrecede, prec_params, num);
 
             //Run fair
-            int[] fair_params = { 8, 16, 32, 64, 128 };
-            RunTestParams("fair", TestValidity, TestFair, fair_params, num);
+            //int[] fair_params = { 8, 16, 32, 64, 128 };
+            //RunTestParams("fair", TestValidity, TestFair, fair_params, num);
 
             //Run nobase
-            int[] nbse_params = { 16, 20, 24, 28 };
-            RunTestParams("nobase", TestSAT, TestNoBase, nbse_params, num);
+            //int[] nbse_params = { 16, 20, 24, 28 };
+            //RunTestParams("nobase", TestSAT, TestNoBase, nbse_params, num);
 
         }
 

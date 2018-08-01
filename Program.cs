@@ -11,9 +11,11 @@ namespace CTLSAT
             //CTLSatisfiabilityChecker checker = new CTLSatisfiabilityChecker(FormulaParser.parse("AF(p)&EX(q)"));
             //Console.WriteLine(checker.check());
 
-            CTLTests.TestArticle(1);
+            //CTLTests.TestArticle(1);
             //CTLTests.ShowLog();
-            Console.ReadKey();
+            //Console.ReadKey();
+
+            SatisfiabilityTests.run();
         }
 
         public static string convSAT(bool b)
