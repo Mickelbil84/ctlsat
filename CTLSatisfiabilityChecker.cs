@@ -60,13 +60,13 @@ namespace CTLSAT
             return FormulaCNF.QBFSAT(sat);
         }
 
-        /* Check if we reached a fixpoint. That is, if no states were removed from
-         * <oldStates>.
+        /* Check if we reached a fixpoint. That is, if there are no states in <largeSet>
+         * which are absent from <smallSet>.
          */
-        private bool isFixpoint(FormulaNode oldStates, FormulaNode newStates, SymbolicState v)
+        private bool isFixpoint(FormulaNode largeSet, FormulaNode smallSet, SymbolicState v)
         {
-            FormulaNode notNew = new FormulaNode(LogicOperator.NOT, newStates, null);
-            FormulaNode stateRemoved = new FormulaNode(LogicOperator.AND, oldStates, notNew);
+            FormulaNode notNew = new FormulaNode(LogicOperator.NOT, smallSet, null);
+            FormulaNode stateRemoved = new FormulaNode(LogicOperator.AND, largeSet, notNew);
             stateRemoved = v.quantify(LogicOperator.EXISTS, stateRemoved);
             return !FormulaCNF.QBFSAT(stateRemoved);
         }
@@ -110,6 +110,42 @@ namespace CTLSAT
             return result;
         }
 
+        private void ComputeEUFragments(FormulaNode stateSet, SymbolicState state)
+        {
+            Console.WriteLine("Compute fragments");
+            foreach (var e in elementary)
+            {
+                if (e.GetLogicOperator() != LogicOperator.EX)
+                    continue;
+                if (e[0].GetLogicOperator() != LogicOperator.EU)
+                    continue;
+#if DEBUG
+                Console.WriteLine("Computing fragment for " + e);
+#endif
+                FormulaNode frag = FormulaParser.parse("~TRUE");
+                while (true)
+                {
+                    string nextName = "succ" + uniqueId.GetTicket().ToString();
+                    SymbolicState next = new SymbolicState(elementary, nextName);
+                    FormulaNode transition = genTransition(state, next);
+                    FormulaNode memberOf = SymbolicState.substitute(stateSet, state, next);
+                    FormulaNode nextFrag = SymbolicState.substitute(frag, state, next);
+                    FormulaNode newFrag = new FormulaNode(LogicOperator.AND, transition, memberOf);
+                    newFrag = new FormulaNode(LogicOperator.AND, newFrag, nextFrag);
+                    newFrag = next.quantify(LogicOperator.EXISTS, newFrag);
+
+                    newFrag = new FormulaNode(LogicOperator.AND, state.valueOf(e[0][0]), newFrag);
+                    newFrag = new FormulaNode(LogicOperator.OR, state.valueOf(e[0][1]), newFrag);
+
+                    if (isFixpoint(newFrag, frag, state))
+                        break;
+
+                    frag = newFrag;
+                }
+                fragEU[e[0]] = frag;
+            }
+        }
+
         /* Generates a formula representing the fact that for <state> either
          * the eventuality is not promised or that if it is, then there 
          * exists a fragment of <stateSet> rooted at <state> that has
@@ -117,6 +153,8 @@ namespace CTLSAT
          */
         private FormulaNode genE(FormulaNode stateSet, SymbolicState state)
         {
+            ComputeEUFragments(stateSet, state);
+
             List<FormulaNode> terms = new List<FormulaNode>();
             foreach (var e in elementary)
             {
@@ -132,30 +170,72 @@ namespace CTLSAT
                 res.SetChildren(notPromised, new FormulaNode(LogicOperator.NOT));
                 res[1].SetChildren(state.valueOf(e[0][0]), null);
 
-                // Create the fragEU iteration
-                if (!fragEU.Keys.Contains(e[0]))
-                    //fragEU[e[0]] = new FormulaNode(FormulaNode.TRUE_LITERAL);
-                    fragEU[e[0]] = FormulaParser.parse("~TRUE");
                 FormulaNode frag = fragEU[e[0]];
-                string nextName = "succ" + uniqueId.GetTicket().ToString();
-                SymbolicState next = new SymbolicState(elementary, nextName);
-                FormulaNode transition = genTransition(state, next);
-                FormulaNode memberOf = SymbolicState.substitute(stateSet, state, next);
-                FormulaNode newFrag = SymbolicState.substitute(frag, state, next);
-                frag = new FormulaNode(LogicOperator.AND, transition, memberOf);
-                frag = new FormulaNode(LogicOperator.AND, frag, newFrag);
-                frag = next.quantify(LogicOperator.EXISTS, frag);
-
-                frag = new FormulaNode(LogicOperator.AND, state.valueOf(e[0][0]), frag);
-                frag = new FormulaNode(LogicOperator.OR, state.valueOf(e[0][1]), frag);
-
-                fragEU[e[0]] = frag;
 
                 res = new FormulaNode(LogicOperator.OR, res, frag);
                 terms.Add(res);
 
             }
             return joinTerms(LogicOperator.AND, terms);
+        }
+
+        /*
+         * <au> is an elementary formula of the form EX(ER(p,q))
+         */
+        private FormulaNode ComputeAUFragment(FormulaNode au, FormulaNode stateSet, SymbolicState state)
+        {
+#if DEBUG
+            Console.WriteLine("Computing fragment for " + au);
+#endif
+            FormulaNode frag = FormulaParser.parse("~TRUE");
+            FormulaNode notLeft = new FormulaNode(LogicOperator.NOT, au[0][0], null);
+            FormulaNode notRight = new FormulaNode(LogicOperator.NOT, au[0][1], null);
+            while (true)
+            {
+                string nextName = "succ" + uniqueId.GetTicket().ToString();
+                SymbolicState next = new SymbolicState(elementary, nextName);
+                FormulaNode transition = genTransition(state, next);
+                FormulaNode memberOf = SymbolicState.substitute(stateSet, state, next);
+                FormulaNode nextFrag = SymbolicState.substitute(frag, state, next);
+                FormulaNode newFrag = new FormulaNode(LogicOperator.AND, transition, memberOf);
+                newFrag = new FormulaNode(LogicOperator.AND, newFrag, nextFrag);
+                newFrag = next.quantify(LogicOperator.EXISTS, newFrag);
+
+                newFrag = new FormulaNode(LogicOperator.AND, state.valueOf(notLeft.NNF()), newFrag);
+
+                // Add the big conjunction needed for fragAU
+                List<FormulaNode> fragTerms = new List<FormulaNode>();
+
+                foreach (FormulaNode el in elementary)
+                {
+                    if (el.GetLogicOperator() != LogicOperator.EX)
+                        continue;
+
+                    nextName = "succ" + uniqueId.GetTicket().ToString();
+                    next = new SymbolicState(elementary, nextName);
+                    transition = genTransition(state, next);
+                    memberOf = SymbolicState.substitute(stateSet, state, next);
+                    nextFrag = SymbolicState.substitute(frag, state, next);
+
+
+                    FormulaNode lhs = state.valueOf(el);
+                    FormulaNode rhs = new FormulaNode(LogicOperator.AND, transition, memberOf);
+                    rhs = new FormulaNode(LogicOperator.AND, rhs, nextFrag);
+                    rhs = new FormulaNode(LogicOperator.AND, rhs, next.valueOf(SymbolicState.substitute(el[0], state, next)));
+                    rhs = next.quantify(LogicOperator.EXISTS, rhs);
+
+                    fragTerms.Add(new FormulaNode(LogicOperator.IMP, lhs, rhs));
+                }
+
+                newFrag = new FormulaNode(LogicOperator.AND, newFrag, joinTerms(LogicOperator.AND, fragTerms));
+                newFrag = new FormulaNode(LogicOperator.OR, state.valueOf(notRight.NNF()), newFrag);
+
+                if (isFixpoint(newFrag, frag, state))
+                    return frag;
+
+                frag = newFrag;
+            }
+
         }
 
         /* Generates a formula representing the fact that for <state> either
@@ -173,63 +253,11 @@ namespace CTLSAT
                 if (e[0].GetLogicOperator() != LogicOperator.ER)
                     continue;
 
-                FormulaNode notPromised = state.valueOf(e);
+                FormulaNode frag = ComputeAUFragment(e, stateSet, state);
 
-                FormulaNode res = new FormulaNode(LogicOperator.OR);
-                res.SetChildren(notPromised, state.valueOf(e[0][0]));
+                FormulaNode promised = state.valueOf(e);
 
-                // Create the fragAU iteration
-                FormulaNode fragKey = new FormulaNode(LogicOperator.AU);
-                fragKey.SetChildren(new FormulaNode(LogicOperator.NOT), new FormulaNode(LogicOperator.NOT));
-                fragKey[0].SetChildren(e[0][0], null);
-                fragKey[1].SetChildren(e[0][1], null);
-
-                //BUGFIX - mu calculus instead of nu
-                //if (!fragAU.Keys.Contains(fragKey))
-                //    fragAU[fragKey] = new FormulaNode(FormulaNode.TRUE_LITERAL);
-                if (!fragAU.Keys.Contains(fragKey))
-                    fragAU[fragKey] = FormulaParser.parse("~TRUE");
-                
-                FormulaNode frag = fragAU[fragKey];
-                string nextName = "succ" + uniqueId.GetTicket().ToString();
-                SymbolicState next = new SymbolicState(elementary, nextName);
-                FormulaNode transition = genTransition(state, next);
-                FormulaNode memberOf = SymbolicState.substitute(stateSet, state, next);
-                FormulaNode newFrag = SymbolicState.substitute(frag, state, next);
-                frag = new FormulaNode(LogicOperator.AND, transition, memberOf);
-                frag = new FormulaNode(LogicOperator.AND, frag, newFrag);
-                frag = next.quantify(LogicOperator.EXISTS, frag);
-
-                frag = new FormulaNode(LogicOperator.AND, state.valueOf(fragKey[0].NNF()), frag);
-                frag = new FormulaNode(LogicOperator.OR, state.valueOf(fragKey[1].NNF()), frag);
-
-                // Add the big conjunction needed for fragAU
-                List<FormulaNode> fragTerms = new List<FormulaNode>();
-
-                foreach (FormulaNode el in elementary)
-                {
-                    if (el.GetLogicOperator() != LogicOperator.EX)
-                        continue;
-
-                    nextName = "succ" + uniqueId.GetTicket().ToString();
-                    next = new SymbolicState(elementary, nextName);
-                    transition = genTransition(state, next);
-                    memberOf = SymbolicState.substitute(stateSet, state, next);
-                    newFrag = SymbolicState.substitute(fragAU[fragKey], state, next);
-
-
-                    FormulaNode lhs = state.valueOf(el);
-                    FormulaNode rhs = new FormulaNode(LogicOperator.AND, transition, memberOf);
-                    rhs = new FormulaNode(LogicOperator.AND, rhs, newFrag);
-                    rhs = new FormulaNode(LogicOperator.AND, rhs, next.valueOf(SymbolicState.substitute(el[0], state, next)));
-                    rhs = next.quantify(LogicOperator.EXISTS, rhs);
-
-                    fragTerms.Add(new FormulaNode(LogicOperator.IMP, lhs, rhs));
-                }
-
-                frag = new FormulaNode(LogicOperator.AND, frag, joinTerms(LogicOperator.AND, fragTerms));
-
-                fragAU[fragKey] = frag;
+                FormulaNode res = new FormulaNode(LogicOperator.OR, promised, state.valueOf(e[0][0]));
 
                 res = new FormulaNode(LogicOperator.OR, res, frag);
                 terms.Add(res);

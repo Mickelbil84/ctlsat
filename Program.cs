@@ -12,6 +12,8 @@ namespace CTLSAT
             {
                 if (args[0] == "$test")
                     SatisfiabilityTests.run();
+                else if (args[0] == "$longtest")
+                    SatisfiabilityTests.runLongTests();
                 else
                     RunFormula(args[0]);
                 return;
