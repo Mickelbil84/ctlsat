@@ -18,6 +18,7 @@ namespace CTLSAT
         private const string solverFile = "solver";
         private const string tempFile = "temp.qdimacs";
         private const int retSAT = 10; //As defined by qbfeval
+        private const int retUNSAT = 20;
 
         private static Process solverThread;
 
@@ -76,6 +77,8 @@ namespace CTLSAT
             solverThread.StartInfo.UseShellExecute = false;
             solverThread.Start();
             solverThread.WaitForExit();
+            if (solverThread.ExitCode != retSAT && solverThread.ExitCode != retUNSAT)
+                throw new Exception("Unexpected exit code from solver: " + solverThread.ExitCode.ToString());
             return solverThread.ExitCode == retSAT;
         }
 

@@ -107,13 +107,11 @@ namespace CTLSAT
         public static void runLongTests()
         {
             run();
-            AssertSat("AG(p) & AF(~p)", false);
-            AssertSat("EX(p) & EX(~p)", true);
-            AssertSat("AG(p) & EX(~p)", false);
-            AssertSat("EF(p) & EF(~p)", true);
+
+            // These tests take a few minutes each. Increase the time limit so we won't time out.
+            timelimit = 100 * 60000;
             AssertSat("EG(EX(p)) & ~p", true);
-            AssertSat("AR(~TRUE,q) & EX(~q)", false);
-            AssertSat("AR(~p,p) & EX(~p)", false);
+            AssertSat("EX(p) & EX(~p)", true);
         }
     }
 }
