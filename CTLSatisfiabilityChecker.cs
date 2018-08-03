@@ -11,17 +11,17 @@ namespace CTLSAT
         private TicketMachine uniqueId = new TicketMachine();
         private FormulaNode normalized;
         private ISet<FormulaNode> elementary;
+        private int iterations;
 
         private IDictionary<FormulaNode, FormulaNode> fragEU = new Dictionary<FormulaNode, FormulaNode>();
         private IDictionary<FormulaNode, FormulaNode> fragAU = new Dictionary<FormulaNode, FormulaNode>();
+
+        public int Iterations { get { return iterations; }}
 
         public CTLSatisfiabilityChecker(FormulaNode formula)
         {
             normalized = formula.implementComplexOperators().NNF();
             elementary = CTLUtils.positiveElementary(normalized);
-            /*Console.WriteLine("Positive Elementary:");
-            foreach (var v in elementary)
-                Console.WriteLine(" " + v.ToString());*/
         }
 
         public bool check()
@@ -32,21 +32,17 @@ namespace CTLSAT
             FormulaNode states = new FormulaNode(FormulaNode.TRUE_LITERAL);
             FormulaNode oldStates;
 
-            int i = 0;
             while (true)
             {
-                i++;
-                Console.WriteLine("Iteration " + i.ToString());
+                iterations++;
+#if DEBUG
+                Console.WriteLine("Iteration " + iterations.ToString());
+#endif
                 oldStates = states;
                 FormulaNode succ = genSucc(states, v);
                 FormulaNode lc1 = genLC1(states, v);
                 FormulaNode e = genE(states, v);
                 FormulaNode a = genA(states, v);
-
-                //Console.WriteLine(succ);
-                //Console.WriteLine();
-                //Console.WriteLine(lc1);
-                //Console.WriteLine();
 
                 states = new FormulaNode(LogicOperator.AND, states, succ);
                 states = new FormulaNode(LogicOperator.AND, states, lc1);
@@ -55,8 +51,9 @@ namespace CTLSAT
                 if (isFixpoint(oldStates, states, v))
                     break;
             }
-
+#if DEBUG
             Console.WriteLine("Reached fixpoint. Checking for satisfying state");
+#endif
             FormulaNode formulaValue = v.valueOf(normalized);
             FormulaNode formulaAndValid = new FormulaNode(LogicOperator.AND, states, formulaValue);
             FormulaNode sat = v.quantify(LogicOperator.EXISTS, formulaAndValid);
