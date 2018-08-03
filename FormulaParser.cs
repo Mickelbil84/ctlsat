@@ -77,7 +77,7 @@ namespace CTLSAT
 
         private static List<LogicOperator> untilOperators = new List<LogicOperator>
         {
-            LogicOperator.AU, LogicOperator.EU
+            LogicOperator.AU, LogicOperator.EU, LogicOperator.AR, LogicOperator.ER
         };
 
         private static List<LogicOperator> quanitifers = new List<LogicOperator>

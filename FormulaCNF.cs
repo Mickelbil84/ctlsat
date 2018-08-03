@@ -266,6 +266,9 @@ namespace CTLSAT
                 node = node.GetLeftChild();
             }
 
+            if (res.quantifiers.Count != formula.GetVariables().Count)
+                throw new Exception("Non-quantified variables in formula!");
+
             res.propositional = TseytinTransformation(node, out addedVars);
 
             //Replace strings with numbers
