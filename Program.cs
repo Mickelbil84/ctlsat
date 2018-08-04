@@ -25,7 +25,6 @@ namespace CTLSAT
                 Console.WriteLine("Please enter a formula: (to quit, enter 'quit')");
                 string input = Console.ReadLine();
                 if (input == "quit") break;
-                //RunFormula(input);
 
                 threadFormula = input;
                 Thread ctlthread = new Thread(RunFormulaThread);
@@ -35,6 +34,7 @@ namespace CTLSAT
                     if (Console.KeyAvailable && Console.ReadKey(true).Key == ConsoleKey.Escape)
                     {
                         ctlthread.Abort();
+                        QBFSolver.AbortSolver();
                         Console.WriteLine("ABORTED");
                         PrintLine();
                     }

@@ -44,6 +44,7 @@
     <Compile Include="CTLSatisfiabilityChecker.cs" />
     <Compile Include="CTLTests.cs" />
     <Compile Include="SatisfiabilityTests.cs" />
+    <Compile Include="QBFSolver.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />

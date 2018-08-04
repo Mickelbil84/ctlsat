@@ -351,26 +351,9 @@ namespace CTLSAT
             // First convert the formula to PNF
             formula = formula.NNF().PNF();
             // Then convert it to QBCNF
-
             QBCNFormula qbcnf = ConvertToCNF(formula);
 
-            // Now create a QDIMACS file and send it to 
-            // a QBF solver
-            // TODO: make more modular
-            CreateQDIMACS(qbcnf, "temp.qdimacs");
-            Process process = new Process();
-            process.StartInfo.FileName = "rareqs";
-            process.StartInfo.Arguments = "temp.qdimacs";
-            process.StartInfo.RedirectStandardOutput = true;
-            process.StartInfo.RedirectStandardError = true;
-            process.StartInfo.UseShellExecute = false;
-            process.Start();
-            string output = process.StandardOutput.ReadToEnd();
-            process.WaitForExit();
-
-            output = output.Trim();
-            bool result = output[output.Length - 1] == '1';
-            return result;
+            return QBFSolver.Solve(qbcnf);
         }
     }
 }
