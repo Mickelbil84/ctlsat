@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Diagnostics;
 
 namespace CTLSAT
 {
@@ -29,6 +30,8 @@ namespace CTLSAT
 
         private static void AssertSat(string formulaString, bool expected)
         {
+            Stopwatch stopwatch = new Stopwatch();
+            stopwatch.Start();
             bool Completed = ExecuteWithTimeLimit(TimeSpan.FromMilliseconds(timelimit), () =>
             {
                 FormulaNode formula = FormulaParser.parse(formulaString);
@@ -39,6 +42,9 @@ namespace CTLSAT
                 if (result != expected)
                     throw new Exception("Wrong SAT value for " + formulaString);
             });
+            stopwatch.Stop();
+            double time = (double)stopwatch.ElapsedMilliseconds / 1000.0;
+            Console.WriteLine("TIME: " + time);
         }
 
 
