@@ -80,15 +80,6 @@ namespace CTLSAT
             return this.logicOp;
         }
 
-        public FormulaNode GetLeftChild()
-        {
-            return this.childNodes[0];
-        }
-        public FormulaNode GetRightChild()
-        {
-            return this.childNodes[1];
-        }
-
         public string GetName()
         {
             return this.name;

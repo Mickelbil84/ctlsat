@@ -52,17 +52,17 @@ namespace CTLSAT
             string left = "", right = "";
 
             TseytinBlock temp;
-            temp = GetTseytinBlocks(node.GetLeftChild(), blockSet);
+            temp = GetTseytinBlocks(node[0], blockSet);
             if (temp == null)
-                left = node.GetLeftChild().GetName();
+                left = node[0].GetName();
             else
                 left = temp.ticket.ToString();
 
-            if (node.GetRightChild() != null)
+            if (node[1] != null)
             {
-                temp = GetTseytinBlocks(node.GetRightChild(), blockSet);
+                temp = GetTseytinBlocks(node[1], blockSet);
                 if (temp == null)
-                    right = node.GetRightChild().GetName();
+                    right = node[1].GetName();
                 else
                     right = temp.ticket.ToString();
             }
@@ -263,7 +263,7 @@ namespace CTLSAT
                     res.quantifiers.Add("e" + node.GetName());
                 else 
                     res.quantifiers.Add("a" + node.GetName());
-                node = node.GetLeftChild();
+                node = node[0];
             }
 
             if (res.quantifiers.Count != formula.GetVariables().Count)

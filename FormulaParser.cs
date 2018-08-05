@@ -85,7 +85,10 @@ namespace CTLSAT
             LogicOperator.EXISTS, LogicOperator.ALL
         };
 
-        private static List<Token> toplevelTokenize(string str)
+        /* Split the given string to tokens, regarding parenthesised substring
+         * as a single token.
+         */
+        private static List<Token> ToplevelTokenize(string str)
         {
             List<Token> tokens = new List<Token>();
             string token = "";
@@ -103,7 +106,7 @@ namespace CTLSAT
                 if (ch == '(' && nest == 1)
                 {
                     if (token != "")
-                        tokens.Add(identifyToken(token));
+                        tokens.Add(IdentifyToken(token));
                     token = "";
                     continue;
                 }
@@ -120,18 +123,18 @@ namespace CTLSAT
                 else
                 {
                     if (token != "")
-                        tokens.Add(identifyToken(token));
-                    tokens.Add(identifyToken(ch.ToString()));
+                        tokens.Add(IdentifyToken(token));
+                    tokens.Add(IdentifyToken(ch.ToString()));
                     token = "";
                 }
 
             }
             if (token != "")
-                tokens.Add(identifyToken(token));
+                tokens.Add(IdentifyToken(token));
             return tokens;
         }
 
-        private static Token identifyToken(string token)
+        private static Token IdentifyToken(string token)
         {
             if (binaryOps.ContainsKey(token))
                 return binaryOps[token];
@@ -142,25 +145,25 @@ namespace CTLSAT
             return new LiteralToken(TokenType.ATOM, token);
         }
 
-        public static FormulaNode parse(string str)
+        public static FormulaNode Parse(string str)
         {
-            return parse(toplevelTokenize(str));
+            return Parse(ToplevelTokenize(str));
         }
 
-        private static FormulaNode parse(List<Token> tokens)
+        private static FormulaNode Parse(List<Token> tokens)
         {
             FormulaNode result = null;
             List<Token> rightSide = new List<Token>();
             BinaryToken lastOp = null;
 
-            // a single token - must be an atom or an unparsed string
+            // the input is a single token - must be an atom or an unparsed string
             if (tokens.Count == 1)
             {
                 var tok = tokens[0] as LiteralToken;
                 if (tok.type == TokenType.ATOM)
                     return new FormulaNode(tok.value);
 
-                return parse(toplevelTokenize(tok.value));
+                return Parse(ToplevelTokenize(tok.value));
             }
 
             int minPrecedence = MAX_PRECEDENCE;
@@ -175,10 +178,10 @@ namespace CTLSAT
 
             if (minPrecedence == MAX_PRECEDENCE)
             {
-                // no toplevel binary operators
+                // the input didn't contain any toplevel binary operators
                 var opToken = tokens[0] as UnaryToken;
                 result = new FormulaNode(opToken.logicOperator);
-                var operand = parse(tokens.GetRange(1, tokens.Count - 1));
+                var operand = Parse(tokens.GetRange(1, tokens.Count - 1));
                 if (untilOperators.Contains(opToken.logicOperator))
                     result.SetChildren(operand[0], operand[1]);
                 else if (quanitifers.Contains(opToken.logicOperator))
@@ -201,13 +204,13 @@ namespace CTLSAT
                     {
                         if (result == null)
                         {
-                            result = parse(rightSide);
+                            result = Parse(rightSide);
                         }
                         else
                         {
                             var leftSide = result;
                             result = new FormulaNode(lastOp.logicOperator);
-                            result.SetChildren(leftSide, parse(rightSide));
+                            result.SetChildren(leftSide, Parse(rightSide));
                         }
                         rightSide = new List<Token>();
                         lastOp = op;
@@ -220,7 +223,7 @@ namespace CTLSAT
             {
                 var leftSide = result;
                 result = new FormulaNode(lastOp.logicOperator);
-                result.SetChildren(leftSide, parse(rightSide));
+                result.SetChildren(leftSide, Parse(rightSide));
             }
 
             return result;

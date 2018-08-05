@@ -11,9 +11,9 @@ namespace CTLSAT
             if(args.Length > 0)
             {
                 if (args[0] == "$test")
-                    SatisfiabilityTests.run();
+                    SatisfiabilityTests.Run();
                 else if (args[0] == "$longtest")
-                    SatisfiabilityTests.runLongTests();
+                    SatisfiabilityTests.RunLongTests();
                 else
                     RunFormula(args[0]);
                 return;
@@ -72,8 +72,8 @@ namespace CTLSAT
 
             Stopwatch stopwatch = new Stopwatch();
             stopwatch.Start();
-            CTLSatisfiabilityChecker checker = new CTLSatisfiabilityChecker(FormulaParser.parse(formula));
-            bool res = checker.check();
+            CTLSatisfiabilityChecker checker = new CTLSatisfiabilityChecker(FormulaParser.Parse(formula));
+            bool res = checker.Check();
             stopwatch.Stop();
             double time = ((double)stopwatch.ElapsedMilliseconds / 1000.0);
 

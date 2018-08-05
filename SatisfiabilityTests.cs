@@ -34,10 +34,10 @@ namespace CTLSAT
             stopwatch.Start();
             bool Completed = ExecuteWithTimeLimit(TimeSpan.FromMilliseconds(timelimit), () =>
             {
-                FormulaNode formula = FormulaParser.parse(formulaString);
+                FormulaNode formula = FormulaParser.Parse(formulaString);
                 Console.WriteLine("\nTEST: " + formulaString);
                 var checker = new CTLSatisfiabilityChecker(formula);
-                bool result = checker.check();
+                bool result = checker.Check();
                 Console.WriteLine("Done");
                 if (result != expected)
                     throw new Exception("Wrong SAT value for " + formulaString);
@@ -48,7 +48,7 @@ namespace CTLSAT
         }
 
 
-        public static void run()
+        public static void Run()
         {
             // TRUE
             AssertSat("TRUE", true);
@@ -107,12 +107,16 @@ namespace CTLSAT
             AssertSat("AR(p,p)", true);
             AssertSat("AR(~p,p)", true);
             AssertSat("AR(~p,p) & ~p", false);
-            
+
+            // nesting
+            AssertSat("AG(EX(p))", true);
+            AssertSat("AG(EX(p)) & ~p", true);
+            AssertSat("EX(EX(p)) & AX(AX(~p))", false);
         }
 
-        public static void runLongTests()
+        public static void RunLongTests()
         {
-            run();
+            Run();
 
             // These tests take a few minutes each. Increase the time limit so we won't time out.
             timelimit = 100 * 60000;

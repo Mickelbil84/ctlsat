@@ -23,7 +23,7 @@ namespace CTLSAT
         private static bool TestSAT(TestFormula test, int param)
         {
             CTLSatisfiabilityChecker checker = new CTLSatisfiabilityChecker(test(param));
-            return checker.check();
+            return checker.Check();
         }
 
         private static bool TestValidity(TestFormula test, int param)
@@ -31,7 +31,7 @@ namespace CTLSAT
             FormulaNode formula = new FormulaNode(LogicOperator.NOT);
             formula.SetChildren(test(param), null);
             CTLSatisfiabilityChecker checker = new CTLSatisfiabilityChecker(formula);
-            return !checker.check();
+            return !checker.Check();
         }
 
         private static TestInfo RunTest(TestDelegate test, TestFormula formula, int param, int num = 100)
@@ -96,7 +96,7 @@ namespace CTLSAT
                 terms.Add(ag);
             }
 
-            FormulaNode lhs = CTLSatisfiabilityChecker.joinTerms(LogicOperator.AND, terms);
+            FormulaNode lhs = CTLSatisfiabilityChecker.JoinTerms(LogicOperator.AND, terms);
             res.SetChildren(lhs, rhs);
 
             return res;
@@ -126,7 +126,7 @@ namespace CTLSAT
                 terms.Add(ag);
             }
 
-            FormulaNode lhs = CTLSatisfiabilityChecker.joinTerms(LogicOperator.AND, terms);
+            FormulaNode lhs = CTLSatisfiabilityChecker.JoinTerms(LogicOperator.AND, terms);
             res.SetChildren(lhs, rhs);
 
             return res;
@@ -154,7 +154,7 @@ namespace CTLSAT
                 terms.Add(ag);
             }
 
-            FormulaNode lhs = CTLSatisfiabilityChecker.joinTerms(LogicOperator.AND, terms);
+            FormulaNode lhs = CTLSatisfiabilityChecker.JoinTerms(LogicOperator.AND, terms);
             res.SetChildren(lhs, rhs);
 
             return res;
@@ -181,7 +181,7 @@ namespace CTLSAT
                 terms.Add(ag);
             }
 
-            FormulaNode lhs = CTLSatisfiabilityChecker.joinTerms(LogicOperator.AND, terms);
+            FormulaNode lhs = CTLSatisfiabilityChecker.JoinTerms(LogicOperator.AND, terms);
             res.SetChildren(lhs, rhs);
 
             return new FormulaNode(LogicOperator.NOT, res, null);

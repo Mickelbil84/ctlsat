@@ -27,7 +27,7 @@ namespace CTLSAT
         /* Build a propositional formula representing the value of the given CTL
          * formula in this state
          */
-        public FormulaNode valueOf(FormulaNode formula)
+        public FormulaNode ValueOf(FormulaNode formula)
         {
             FormulaNode result, er;
             switch (formula.GetLogicOperator())
@@ -44,44 +44,44 @@ namespace CTLSAT
                 case LogicOperator.AX:
                     FormulaNode notBody = CTLUtils.nnfNegate(formula[0]);
                     FormulaNode ex = new FormulaNode(LogicOperator.EX, notBody, null);
-                    FormulaNode exValue = valueOf(ex);
+                    FormulaNode exValue = ValueOf(ex);
                     return new FormulaNode(LogicOperator.NOT, exValue, null);
 
                 case LogicOperator.EU:
-                    result = valueOf(new FormulaNode(LogicOperator.EX, formula, null));
-                    result = new FormulaNode(LogicOperator.AND, valueOf(formula[0]), result);
-                    result = new FormulaNode(LogicOperator.OR, valueOf(formula[1]), result);
+                    result = ValueOf(new FormulaNode(LogicOperator.EX, formula, null));
+                    result = new FormulaNode(LogicOperator.AND, ValueOf(formula[0]), result);
+                    result = new FormulaNode(LogicOperator.OR, ValueOf(formula[1]), result);
                     return result;
 
                 case LogicOperator.AU:
                     er = new FormulaNode(LogicOperator.ER,
                                                     CTLUtils.nnfNegate(formula[0]),
                                                     CTLUtils.nnfNegate(formula[1]));
-                    result = valueOf(new FormulaNode(LogicOperator.EX, er, null));
+                    result = ValueOf(new FormulaNode(LogicOperator.EX, er, null));
                     result = new FormulaNode(LogicOperator.NOT, result, null);
-                    result = new FormulaNode(LogicOperator.AND, valueOf(formula[0]), result);
-                    result = new FormulaNode(LogicOperator.OR, valueOf(formula[1]), result);
+                    result = new FormulaNode(LogicOperator.AND, ValueOf(formula[0]), result);
+                    result = new FormulaNode(LogicOperator.OR, ValueOf(formula[1]), result);
                     return result;
 
                 case LogicOperator.ER:
-                    result = valueOf(new FormulaNode(LogicOperator.EX, formula, null));
-                    result = new FormulaNode(LogicOperator.OR, valueOf(formula[0]), result);
-                    result = new FormulaNode(LogicOperator.AND, valueOf(formula[1]), result);
+                    result = ValueOf(new FormulaNode(LogicOperator.EX, formula, null));
+                    result = new FormulaNode(LogicOperator.OR, ValueOf(formula[0]), result);
+                    result = new FormulaNode(LogicOperator.AND, ValueOf(formula[1]), result);
                     return result;
 
                 case LogicOperator.AR:
                     er = new FormulaNode(LogicOperator.EU,
                                                     CTLUtils.nnfNegate(formula[0]),
                                                     CTLUtils.nnfNegate(formula[1]));
-                    result = valueOf(new FormulaNode(LogicOperator.EX, er, null));
+                    result = ValueOf(new FormulaNode(LogicOperator.EX, er, null));
                     result = new FormulaNode(LogicOperator.NOT, result, null);
-                    result = new FormulaNode(LogicOperator.OR, valueOf(formula[0]), result);
-                    result = new FormulaNode(LogicOperator.AND, valueOf(formula[1]), result);
+                    result = new FormulaNode(LogicOperator.OR, ValueOf(formula[0]), result);
+                    result = new FormulaNode(LogicOperator.AND, ValueOf(formula[1]), result);
                     return result;
 
                 case LogicOperator.AND:
                 case LogicOperator.OR:
-                    return new FormulaNode(formula.GetLogicOperator(), valueOf(formula[0]), valueOf(formula[1]));
+                    return new FormulaNode(formula.GetLogicOperator(), ValueOf(formula[0]), ValueOf(formula[1]));
 
                 case LogicOperator.NOT:
                     FormulaNode bodyVar;
@@ -102,7 +102,7 @@ namespace CTLSAT
         /* Replace the variables describing the state <from> with the ones that describe
          * state <to>
          */
-        public static FormulaNode substitute(FormulaNode formula, SymbolicState from, SymbolicState to)
+        public static FormulaNode Substitute(FormulaNode formula, SymbolicState from, SymbolicState to)
         {
             if (formula.GetLogicOperator() == LogicOperator.VAR)
             {
@@ -132,21 +132,21 @@ namespace CTLSAT
                 {
                     result.SetName(formula.GetName());
                 }
-                result.SetChildren(substitute(formula[0], from, to), null);
+                result.SetChildren(Substitute(formula[0], from, to), null);
                 return result;
             }
 
             FormulaNode res = new FormulaNode(formula.GetLogicOperator());
 
-            FormulaNode left = substitute(formula[0], from, to);
+            FormulaNode left = Substitute(formula[0], from, to);
             FormulaNode right = null;
             if (formula[1] != null)
-                right = substitute(formula[1], from, to);
+                right = Substitute(formula[1], from, to);
             res.SetChildren(left, right);
             return res;
         }
 
-        public FormulaNode quantify(LogicOperator quantifier, FormulaNode formula)
+        public FormulaNode Quantify(LogicOperator quantifier, FormulaNode formula)
         {
             FormulaNode result = formula;
             foreach (string name in elementaryNames.Values)
