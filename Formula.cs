@@ -14,7 +14,7 @@ namespace CTLSAT
         AND, OR, NOT, IMP,
         EF, AF, EG, AG,
         EX, AX, EU, AU, ER, AR,
-        VAR,
+        VAR,   // This node is an atom
         COMMA  // This is only used internally by the parsing logic
     }
 
@@ -34,7 +34,9 @@ namespace CTLSAT
         private ISet<string> variableSet;
         private static TicketMachine nameGenerator = new TicketMachine();
 
+        // When logicOp is ALL or EXISTS, this field contains the name of the quantified variable
         private string name;
+
         public FormulaNode() {}
         public FormulaNode(string name)
         {
@@ -230,7 +232,7 @@ namespace CTLSAT
         }
 
         // replace ->, AF, AG, EF and EG with simpler operators
-        public FormulaNode implementComplexOperators()
+        public FormulaNode ImplementComplexOperators()
         {
             FormulaNode leftChild = null;
             FormulaNode rightChild = null;
@@ -238,9 +240,9 @@ namespace CTLSAT
             FormulaNode falseFormula = new FormulaNode(LogicOperator.NOT, trueFormula, null);
             FormulaNode result;
             if (this[0] != null)
-                leftChild = this[0].implementComplexOperators();
+                leftChild = this[0].ImplementComplexOperators();
             if (this[1] != null)
-                rightChild = this[1].implementComplexOperators();
+                rightChild = this[1].ImplementComplexOperators();
             switch (logicOp) {
                 // (a -> b) is (~a | b)
                 case LogicOperator.IMP:

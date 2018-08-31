@@ -53,8 +53,9 @@ namespace CTLSAT
         private const int MAX_PRECEDENCE = 1000;
         private static Dictionary<string, BinaryToken> binaryOps = new Dictionary<string, BinaryToken>
         {
-            ["&"] = new BinaryToken("&", 3, LogicOperator.AND),
-            ["|"] = new BinaryToken("|", 2, LogicOperator.OR),
+            ["&"] = new BinaryToken("&", 4, LogicOperator.AND),
+            ["|"] = new BinaryToken("|", 3, LogicOperator.OR),
+            ["->"] = new BinaryToken("->", 2, LogicOperator.IMP),
             [","] = new BinaryToken(",", 1, LogicOperator.COMMA)
         };
 
@@ -120,6 +121,19 @@ namespace CTLSAT
 
                 if (Char.IsLetterOrDigit(ch) || ch == '_' || nest > 0)
                     token += ch;
+                else if (ch == '-')
+                {
+                    if (token != "")
+                        tokens.Add(IdentifyToken(token));
+                    token = "-";
+                }
+                else if (ch == '>')
+                {
+                    if (token != "-")
+                        throw new Exception("Unrecognized token");
+                    tokens.Add(IdentifyToken("->"));
+                    token = "";
+                }
                 else
                 {
                     if (token != "")
@@ -129,6 +143,8 @@ namespace CTLSAT
                 }
 
             }
+            if (nest != 0)
+                throw new Exception("Unbalanced parenthesis");
             if (token != "")
                 tokens.Add(IdentifyToken(token));
             return tokens;
@@ -141,6 +157,9 @@ namespace CTLSAT
 
             if (unaryOps.ContainsKey(token))
                 return unaryOps[token];
+
+            if (token != FormulaNode.TRUE_LITERAL && !Char.IsLower(token[0]))
+                throw new Exception("Literals must start with a lowercase letter");
 
             return new LiteralToken(TokenType.ATOM, token);
         }

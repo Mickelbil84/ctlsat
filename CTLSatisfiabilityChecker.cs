@@ -20,7 +20,7 @@ namespace CTLSAT
 
         public CTLSatisfiabilityChecker(FormulaNode formula)
         {
-            normalized = formula.implementComplexOperators().NNF();
+            normalized = formula.ImplementComplexOperators().NNF();
             elementary = CTLUtils.positiveElementary(normalized);
         }
 

@@ -167,11 +167,12 @@ namespace CTLSAT
                 addedVars.Add(block.ticket.ToString());
 
             // Force the TRUE variable to true
-            res.Add(new HashSet<string> { "TRUE" });
+            res.Add(new HashSet<string> { FormulaNode.TRUE_LITERAL });
 
             return res;
         }
 
+        // A class representing a quantified CNF formula
         public class QBCNFormula
         {
             public ISet<ISet<string>> propositional;
@@ -304,6 +305,7 @@ namespace CTLSAT
             return res;
         }
 
+        // Write the given QCNF formula into a file in QDIMACS format
         public static void CreateQDIMACS(QBCNFormula qbcnf, string filename)
         {
             using (StreamWriter sw = File.CreateText(filename))

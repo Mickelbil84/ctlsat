@@ -26,7 +26,9 @@ namespace CTLSAT
                 string input = Console.ReadLine();
                 if (input == "quit") break;
 
-                threadFormula = input;
+                threadFormula = input.Trim();
+                if (threadFormula == "")
+                    continue;
                 Thread ctlthread = new Thread(RunFormulaThread);
                 ctlthread.Start();
                 while(ctlthread.IsAlive)
@@ -67,12 +69,22 @@ namespace CTLSAT
 
         public static void RunFormula(string formula)
         {
+            FormulaNode parsedFormula = null;
+
             PrintLine();
             Console.WriteLine("formula: " + formula);
 
             Stopwatch stopwatch = new Stopwatch();
             stopwatch.Start();
-            CTLSatisfiabilityChecker checker = new CTLSatisfiabilityChecker(FormulaParser.Parse(formula));
+            try
+            {
+                parsedFormula = FormulaParser.Parse(formula);
+            } catch (Exception e)
+            {
+                Console.WriteLine("Parsing error: " + e.Message);
+                return;
+            }
+            CTLSatisfiabilityChecker checker = new CTLSatisfiabilityChecker(parsedFormula);
             bool res = checker.Check();
             stopwatch.Stop();
             double time = ((double)stopwatch.ElapsedMilliseconds / 1000.0);

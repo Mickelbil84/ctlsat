@@ -59,6 +59,8 @@ namespace CTLSAT
             AssertSat("p & ~p", false);
             AssertSat("p | ~p", true);
             AssertSat("p & q", true);
+            AssertSat("p -> p", true);
+            AssertSat("TRUE -> ~TRUE", false);
 
             // EX and AX
             AssertSat("EX(p)", true);
