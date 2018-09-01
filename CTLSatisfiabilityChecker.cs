@@ -16,7 +16,7 @@ namespace CTLSAT
         private IDictionary<FormulaNode, FormulaNode> fragEU = new Dictionary<FormulaNode, FormulaNode>();
         private IDictionary<FormulaNode, FormulaNode> fragAU = new Dictionary<FormulaNode, FormulaNode>();
 
-        public int Iterations { get { return iterations; }}
+        public int Iterations { get { return iterations; } }
 
         public CTLSatisfiabilityChecker(FormulaNode formula)
         {
@@ -112,7 +112,10 @@ namespace CTLSAT
 
         private void ComputeEUFragments(FormulaNode stateSet, SymbolicState state)
         {
+
+            #if DEBUG
             Console.WriteLine("Compute fragments");
+#endif
             foreach (var e in elementary)
             {
                 if (e.GetLogicOperator() != LogicOperator.EX)
@@ -286,7 +289,6 @@ namespace CTLSAT
             return JoinTerms(LogicOperator.AND, terms);
         }
 
-        // TODO: Move to Formula.cs
         public static FormulaNode JoinTerms(LogicOperator op, List<FormulaNode> terms)
         {
             FormulaNode result;

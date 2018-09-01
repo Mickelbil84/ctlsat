@@ -42,7 +42,6 @@
     <Compile Include="SymbolicState.cs" />
     <Compile Include="TicketMachine.cs" />
     <Compile Include="CTLSatisfiabilityChecker.cs" />
-    <Compile Include="CTLTests.cs" />
     <Compile Include="SatisfiabilityTests.cs" />
     <Compile Include="QBFSolver.cs" />
   </ItemGroup>

@@ -400,7 +400,7 @@ namespace CTLSAT
                 return res;
             }
 
-            if (this.logicOp == LogicOperator.EXISTS || 
+            if (this.logicOp == LogicOperator.EXISTS ||
                 this.logicOp == LogicOperator.ALL)
             {
                 res = new FormulaNode(this.logicOp, this.name);
@@ -417,11 +417,11 @@ namespace CTLSAT
             rightSet = right.GetVariables();
 
             if (this.logicOp == LogicOperator.AND ||
-                this.logicOp == LogicOperator.OR) 
+                this.logicOp == LogicOperator.OR)
             {
                 FormulaNode temp;
                 if (left.logicOp == LogicOperator.EXISTS ||
-                    left.logicOp == LogicOperator.ALL) 
+                    left.logicOp == LogicOperator.ALL)
                 {
                     if (rightSet.Contains(left.name))
                     {
@@ -448,7 +448,7 @@ namespace CTLSAT
                     temp.SetChildren(left, right.childNodes[0]);
                     res.SetChildren(temp.PNF(), null);
                 }
-                else 
+                else
                 {
                     res = new FormulaNode(this.logicOp);
                     res.SetChildren(left, right);
@@ -466,158 +466,6 @@ namespace CTLSAT
 
             return res;
         }
-
-        /*public FormulaNode PNF()
-        {
-            return this.FastPNF();
-        }
-
-        private static ISet<string> variables;
-
-        private FormulaNode FastPNFRec()
-        {
-            if (this.logicOp == LogicOperator.VAR)
-                return new FormulaNode(this.name);
-
-            FormulaNode res = null, left = null, right = null;
-            //string varname;
-
-            if (this.logicOp == LogicOperator.NOT)
-            {
-                res = new FormulaNode(LogicOperator.NOT);
-                res.SetChildren(new FormulaNode(this.childNodes[0].name), null);
-                return res;
-            }
-
-            if (this.logicOp == LogicOperator.EXISTS ||
-                this.logicOp == LogicOperator.ALL)
-            {
-                res = new FormulaNode(this.logicOp, this.name);
-                res.SetChildren(this.childNodes[0].FastPNFRec(), null);
-                return res;
-            }
-
-            // Since we assume NNF, all NOT nodes are next to variables
-            // Thus all of the remaining operators are binary
-            left = this.childNodes[0].FastPNFRec();
-            right = this.childNodes[1].FastPNFRec();
-
-#if DEBUG
-            if (!VerifyDisjointQuantifiers(left, right))
-                throw new Exception("PNF error");
-#endif
-
-            if (this.logicOp == LogicOperator.AND ||
-                this.logicOp == LogicOperator.OR)
-            {
-                FormulaNode temp, ptr = null;
-                while (left.logicOp == LogicOperator.EXISTS ||
-                    left.logicOp == LogicOperator.ALL)
-                {
-                    if (variables.Contains(left.name))
-                    {
-                        //varname = right.UniqueVariable();
-                        //left = left.Substitute(left.name, varname);
-                        //variables.Add(varname);
-                    }
-
-                    temp = new FormulaNode(left.logicOp, left.name);
-                    if (res == null)
-                        res = ptr = temp;
-                    else 
-                    {
-                        ptr.childNodes[0] = temp;
-                        ptr = ptr[0];
-                    }
-
-                    left = left[0];
-                }
-
-                while (right.logicOp == LogicOperator.EXISTS ||
-                    right.logicOp == LogicOperator.ALL)
-                {
-                    if (variables.Contains(right.name))
-                    {
-                        //varname = left.UniqueVariable();
-                        //right = right.Substitute(right.name, varname);
-                        //variables.Add(varname);
-                    }
-
-                    temp = new FormulaNode(right.logicOp, right.name);
-                    if (res == null)
-                        res = ptr = temp;
-                    else
-                    {
-                        ptr.childNodes[0] = temp;
-                        ptr = ptr[0];
-                    }
-
-                    right = right[0];
-                }
-
-                if (res == null)
-                {
-                    res = new FormulaNode(this.logicOp);
-                    res.SetChildren(left, right);
-                }
-                else
-                {
-                    ptr.childNodes[0] = new FormulaNode(this.logicOp);
-                    ptr.childNodes[0].SetChildren(left, right);
-                }
-            }
-
-            // For convenience, we get rid of "->" operators
-            if (this.logicOp == LogicOperator.IMP)
-            {
-                res = new FormulaNode(LogicOperator.OR);
-                res.SetChildren(new FormulaNode(LogicOperator.NOT), right);
-                res.childNodes[0].SetChildren(left, null);
-                res = res.NNF().FastPNFRec();
-            }
-
-            return res;
-        }
-
-        // Tests whether variables that are quantified in <left> don't appear in <right>
-        // (quantified or not) and vice versa.
-        // Assumes <left> and <right> are in PNF form.
-        private bool VerifyDisjointQuantifiers(FormulaNode left, FormulaNode right)
-        {
-            ISet<string> leftVars = left.GetVariables();
-            ISet<string> rightVars = right.GetVariables();
-            ISet<string> leftQuantified = left.GetLeadingQuantifiedVars();
-            ISet<string> rightQuantified = right.GetLeadingQuantifiedVars();
-
-            leftVars.IntersectWith(rightQuantified);
-            if (leftVars.Count > 0)
-                return false;
-
-            rightVars.IntersectWith(leftQuantified);
-            if (rightVars.Count > 0)
-                return false;
-            return true;
-        }
-
-        private ISet<string> GetLeadingQuantifiedVars()
-        {
-            ISet<string> result = new HashSet<string>();
-            FormulaNode ptr = this;
-            while (ptr.logicOp == LogicOperator.EXISTS ||
-                    ptr.logicOp == LogicOperator.ALL)
-            {
-                result.Add(ptr.name);
-                ptr = ptr[0];
-            }
-            return result;
-        }
-
-        public FormulaNode FastPNF()
-        {
-            variables = this.GetVariables();
-            return this.FastPNFRec();
-        }*/
-
 
         // For a PNF formula, return the non-quanitifed part
         public FormulaNode GetPropositional()

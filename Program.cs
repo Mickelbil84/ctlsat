@@ -10,9 +10,9 @@ namespace CTLSAT
         {
             if(args.Length > 0)
             {
-                if (args[0] == "$test")
+                if (args[0] == "_test")
                     SatisfiabilityTests.Run();
-                else if (args[0] == "$longtest")
+                else if (args[0] == "_longtest")
                     SatisfiabilityTests.RunLongTests();
                 else
                     RunFormula(args[0]);
